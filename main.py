@@ -17,6 +17,8 @@ import time
 import win32gui
 
 import ModuleJSON
+import ModulePostgres
+from ModulePostgres import *
 import Global
 
 abspath = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -157,7 +159,26 @@ def main(*args):
 		check = GetStationConfig(sigla_staz)
 
 		sigla = ConfigVarieJSON['sigla']
+		db_ip = ConfigVarieJSON['db_ip']
+		db_name = ConfigVarieJSON['db_name']
+		db_user = ConfigVarieJSON['db_user']
+		db_password = ConfigVarieJSON['db_password']
+		db_port = ConfigVarieJSON['db_port']
+
+		DB_CONFIG = {
+			"dbname": db_name,
+			"user": db_user,
+			"password": db_password,
+			"host": db_ip,
+			"port": db_port
+		}
 		
+		#db_connesso = verifica_connessione_db_postgres(db_ip, db_name, db_user, db_password, db_port)
+		db_connesso = verifica_connessione_db_postgres(DB_CONFIG)
+
+		if db_connesso == 1:
+			db_dati = leggi_dati(DB_CONFIG, "averages.avg_60s_01479")
+
 	except Exception as e:
 		print(f"Errore: {e}")
 

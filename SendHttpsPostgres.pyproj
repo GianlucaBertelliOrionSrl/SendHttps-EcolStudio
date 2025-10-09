@@ -39,6 +39,7 @@
     <Compile Include="ModuleExcel.py" />
     <Compile Include="ModuleFunctions.py" />
     <Compile Include="ModuleJSON.py" />
+    <Compile Include="ModulePostgres.py" />
     <Compile Include="ModulePS.py" />
     <Compile Include="ModuleTime.py" />
     <Compile Include="__init__.py" />
