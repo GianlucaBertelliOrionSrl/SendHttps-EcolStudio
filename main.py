@@ -22,6 +22,9 @@ from ModulePostgres import *
 import ModuleSendHttps
 from ModuleSendHttps import *
 
+import logging
+import ModuleLogger
+
 import Global
 
 abspath = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -137,10 +140,16 @@ def GetStationConfig(sigla_staz):
 
 def main(*args):
 	try:	
+		logger = ModuleLogger.setup_logger(logging.DEBUG)
+
 		if os.getenv("VS_ENV") == "1":
-			print("Avviato da Visual Studio")
+			s = "Avviato da Visual Studio"
+			print(s)
+			logger.info(s)
 		else:
+			s = "Avviato da riga di comando"
 			print("Avviato da riga di comando")
+			logger.info(s)
 			root_path = "C:\\Dati_ETL"
 		pass
 
@@ -182,7 +191,7 @@ def main(*args):
 			"port": db_port
 		}
 		
-		#db_connesso = verifica_connessione_db_postgres(db_ip, db_name, db_user, db_password, db_port)
+
 		db_connesso = verifica_connessione_db_postgres(DB_CONFIG)
 
 		if db_connesso == 1:
@@ -209,11 +218,13 @@ def main(*args):
 			#row = tuple([epoch_utc_5min, version] + valori_parametri)  # unisce dinamicamente
 			#ModuleSendHttps.invia_dati_https(row)
 			
-
 			time.sleep(0.5)  # pausa mezzo secondo
 
 	except Exception as e:
-		print(f"Errore: {e}")
+		s = f"Errore: {e}"		
+		#print(f"Errore: {e}")
+		print(s)
+		logger.info(s)
 
 	sys.exit(0)
 	os._exit(0)

@@ -19,7 +19,7 @@
 	"params_tx_dashboard": 
 	[
 		{
-		  "name_param": "PID_ETL1497",
+		  "name_param": "pid",
 		  "meas_unit": "ppb",
 		  "index_param": 11,
 		  "grafana_code": "X-105",
@@ -31,12 +31,12 @@
 		  "value_suffix": "&value=",
 		  "readwrite": 0,
 		  "opc_param_type": "double",
-		  "opc_param_name": "PID_ETL1497",
+		  "opc_param_name": "pid",
 		  "min_send": "",
 		  "max_send": ""
 		},
 		{
-		  "name_param": "VOC_ETL1497",
+		  "name_param": "voc",
 		  "meas_unit": "ppm",
 		  "grafana_code": "M-33",
 		  "paramid": 2,
@@ -47,12 +47,12 @@
 		  "value_suffix": "&value=",
 		  "readwrite": 0,
 		  "opc_param_type": "double",
-		  "opc_param_name": "VOC_ETL1497",
+		  "opc_param_name": "voc",
 		  "min_send": "",
 		  "max_send": ""
 		},
 		{
-		  "name_param": "C6H6_ETL1497",
+		  "name_param": "c6h6",
 		  "meas_unit": "ppb",
 		  "grafana_code": "P-20",
 		  "paramid": 4,
@@ -63,12 +63,12 @@
 		  "value_suffix": "&value=",
 		  "readwrite": 0,
 		  "opc_param_type": "double",
-		  "opc_param_name": "C6H6_ETL1497",
+		  "opc_param_name": "c6h6",
 		  "min_send": "",
 		  "max_send": ""
 		},
 		{
-		  "name_param": "H2S_ETL1497",
+		  "name_param": "h2s",
 		  "meas_unit": "ppb",
 		  "grafana_code": "P-11",
 		  "paramid": 5,
@@ -78,7 +78,7 @@
 		  "send_https": "https://ioms.tabsrl.com/api/measures/STBN9NW",
 		  "value_suffix": "&value=",
 		  "opc_param_type": "double",
-		  "opc_param_name": "H2S_ETL1497",
+		  "opc_param_name": "h2s",
 		  "readwrite": 0,
 		  "min_send": "",
 		  "max_send": ""

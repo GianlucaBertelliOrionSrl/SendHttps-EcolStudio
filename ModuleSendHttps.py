@@ -2,6 +2,11 @@
 import time
 from urllib.parse import urlencode
 
+import logging
+import ModuleLogger
+
+logger = ModuleLogger.setup_logger(logging.DEBUG)
+
 # Configurazione
 API_URL = "https://ioms.tabsrl.com/api/measures/STBN9NW"
 API_KEY = "Tbggllb3x46t0J3nY3Nj_kGpUY_jEp"
@@ -39,13 +44,26 @@ def invia_dati_https(secret_key, payload):
 		"accept": "*/*",
 		"Content-Type": "application/x-www-form-urlencoded"
 	}
+	
+	# s = str(MY_HEADERS)
+	# logger.info(s)
 
 	try:
 		response = requests.post(API_URL, headers=MY_HEADERS, data=payload)
 		if response.status_code == 200:
-			print(f"✅ Dato inviato: {payload}")
+			s = f"✅ Dato inviato: {payload}"
+			#print(f"✅ Dato inviato: {payload}")
+			print(s)
+			logger.info(s)
+
 		else:
-			print(f"⚠️ Errore {response.status_code}: {response.text}")
+			s = f"⚠️ Errore {response.status_code}: {response.text}"
+			#print(f"⚠️ Errore {response.status_code}: {response.text}")
+			print(s)
+			logger.info(s)
 
 	except Exception as e:
-		print(f"❌ Errore durante invio: {e}")
+		s = f"❌ Errore durante invio: {e}"
+		#print(f"❌ Errore durante invio: {e}")
+		print(s)
+		logger.info(s)
