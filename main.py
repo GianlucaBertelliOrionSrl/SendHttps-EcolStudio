@@ -165,6 +165,7 @@ def main(*args):
 
 		# Crea un vettore con tutti i paramid
 		paramid_list = [p["paramid"] for p in params]
+		param_name_list = [p["name_param"] for p in params]
 		
 		sigla = ConfigVarieJSON['sigla']
 		db_ip = ConfigVarieJSON['db_ip']
@@ -186,19 +187,29 @@ def main(*args):
 
 		if db_connesso == 1:
 			#(DB_CONFIG, db_table, staz_name, paramid_list, period_sec)
+			secret_key = ConfigVarieJSON['secret_key']
 			r = leggi_dati(DB_CONFIG, "averages.avg_60s_01479", sigla, paramid_list, 60*60*24)
-
-			#for r in db_rows:
-			#row = (int(time.time()), "1.0", 0.15, 0.44, 0.0, 0.08)
+		
+			valori_parametri = [float(r[0][4]), float(r[1][4]), float(r[2][4]), float(r[3][4])]  # valori letti dinamicamente
+			#param_name_list
 			
-			parametri = [float(r[0][4]), float(r[1][4]), float(r[2][4]), float(r[3][4])]  # valori letti dinamicamente
-			epoch_utc = epoch_utc()
+			dati_completi = dict(zip(param_name_list, valori_parametri))
+
+			epoch_utc = ModuleTime.epoch_utc()
 			epoch_utc_5min = epoch_utc - (epoch_utc % 300)
 			version = "1.0"
 
-			row = tuple([epoch_utc_5min, version] + parametri)  # unisce dinamicamente
+			payload = {
+				"time": epoch_utc_5min,
+				"version": "1.0",
+				**dati_completi  # unisce le coppie chiave/valore di `dati`
+			}
+			ModuleSendHttps.invia_dati_https(secret_key, payload)
 
-			ModuleSendHttps.invia_dati_https(row)
+			#row = tuple([epoch_utc_5min, version] + valori_parametri)  # unisce dinamicamente
+			#ModuleSendHttps.invia_dati_https(row)
+			
+
 			time.sleep(0.5)  # pausa mezzo secondo
 
 	except Exception as e:

@@ -1,5 +1,6 @@
 ﻿import requests
 import time
+from urllib.parse import urlencode
 
 # Configurazione
 API_URL = "https://ioms.tabsrl.com/api/measures/STBN9NW"
@@ -12,7 +13,7 @@ HEADERS = {
 }
 
 # Funzione per inviare una riga di dati
-def invia_dati_https(row):
+def invia_dati_https(secret_key, payload):
 	"""
 	row = tuple con i valori (epoch, version, voc, c6h6, h2s, pid)
   
@@ -24,17 +25,23 @@ def invia_dati_https(row):
     -d 'time=1758705000&version=1.0&voc=0.15&c6h6=0.44&h2s=0.0&pid=0.08'
 
 	"""
-	payload = {
-		"time": int(row[0]),         # epoch
-		"version": row[1],          # version, es. "1.0"
-		"voc": float(row[2]),
-		"c6h6": float(row[3]),
-		"h2s": float(row[4]),
-		"pid": float(row[5])
+	# payload = {
+	# 	"time": int(row[0]),         # epoch
+	# 	"version": row[1],          # version, es. "1.0"
+	# 	"voc": float(row[2]),
+	# 	"c6h6": float(row[3]),
+	# 	"h2s": float(row[4]),
+	# 	"pid": float(row[5])
+	# }
+
+	MY_HEADERS = {
+		"X-IOMS-KEY": secret_key,
+		"accept": "*/*",
+		"Content-Type": "application/x-www-form-urlencoded"
 	}
 
 	try:
-		response = requests.post(API_URL, headers=HEADERS, data=payload)
+		response = requests.post(API_URL, headers=MY_HEADERS, data=payload)
 		if response.status_code == 200:
 			print(f"✅ Dato inviato: {payload}")
 		else:
