@@ -6,10 +6,12 @@ import ModuleFunctions
 from ModuleFunctions import *
 
 import datetime
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
 
 from time import strftime
 from time import sleep
+
 
 def SleepMsec(millisec):
 	sec = millisec/1000.0
@@ -21,6 +23,15 @@ def SleepSec(sec):
 def Epoch():
 	epoch_time = int(time.time())
 	return epoch_time
+
+def epoch_utc():
+	# Ora corrente in UTC
+	ora_utc = datetime.now(timezone.utc)
+
+	# Epoch (secondi dall'1/1/1970 UTC)
+	epoch_utc = int(ora_utc.timestamp())
+
+	return epoch_utc
 
 def Seconds():
 	dt = datetime.now().time() 
@@ -485,18 +496,22 @@ def DateTimeFromSeconds(sec,utc):
 	return time_now
 
 def AddDate(date_and_time,delta_time_min):
-	#date_and_time = datetime.datetime(2021, 8, 22, 11, 2, 5)
-	#print("Original time:")
-	#print(date_and_time)
-
 	try:
 		# Calling the timedelta() function 
 		#time_change = datetime.timedelta(minutes=75)
 		time_change = timedelta(minutes = delta_time_min)
 		new_time = date_and_time + time_change
+
 	except Exception as e:
 		print(str(e))
 		new_time = date_and_time
 	
 	return new_time
 
+def date2unix(vDate: datetime) -> int:
+    """
+    Converte una data in secondi trascorsi dal 1 gennaio 2000
+    """
+    base_date = datetime(2000, 1, 1)
+    delta = vDate - base_date
+    return int(delta.total_seconds())

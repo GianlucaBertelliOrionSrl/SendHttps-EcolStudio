@@ -1,29 +1,31 @@
 ﻿from ast import Assign
 from dataclasses import replace
 
-#import xlsxwriter
-
 import win32con
 import win32com.client as win32
 from win32com.client import Dispatch
 import shutil
-import tempfile
+#import tempfile
 import sys, os
 import argparse
 import psutil
-import copy
+#import copy
 import string
 import time
 import win32gui
 
 import ModuleJSON
+
 import ModulePostgres
 from ModulePostgres import *
+
+import ModuleSendHttps
+from ModuleSendHttps import *
+
 import Global
 
 abspath = os.path.dirname(os.path.realpath(sys.argv[0]))
 root_path = "D:\\Dati_ETL_Total_181000076"
-
 
 ###############################################################################################
 
@@ -158,6 +160,12 @@ def main(*args):
 
 		check = GetStationConfig(sigla_staz)
 
+		# Estrae la lista dei parametri
+		params = ConfigVarieJSON["params_tx_dashboard"]
+
+		# Crea un vettore con tutti i paramid
+		paramid_list = [p["paramid"] for p in params]
+		
 		sigla = ConfigVarieJSON['sigla']
 		db_ip = ConfigVarieJSON['db_ip']
 		db_name = ConfigVarieJSON['db_name']
@@ -177,7 +185,21 @@ def main(*args):
 		db_connesso = verifica_connessione_db_postgres(DB_CONFIG)
 
 		if db_connesso == 1:
-			db_dati = leggi_dati(DB_CONFIG, "averages.avg_60s_01479")
+			#(DB_CONFIG, db_table, staz_name, paramid_list, period_sec)
+			r = leggi_dati(DB_CONFIG, "averages.avg_60s_01479", sigla, paramid_list, 60*60*24)
+
+			#for r in db_rows:
+			#row = (int(time.time()), "1.0", 0.15, 0.44, 0.0, 0.08)
+			
+			parametri = [float(r[0][4]), float(r[1][4]), float(r[2][4]), float(r[3][4])]  # valori letti dinamicamente
+			epoch_utc = epoch_utc()
+			epoch_utc_5min = epoch_utc - (epoch_utc % 300)
+			version = "1.0"
+
+			row = tuple([epoch_utc_5min, version] + parametri)  # unisce dinamicamente
+
+			ModuleSendHttps.invia_dati_https(row)
+			time.sleep(0.5)  # pausa mezzo secondo
 
 	except Exception as e:
 		print(f"Errore: {e}")

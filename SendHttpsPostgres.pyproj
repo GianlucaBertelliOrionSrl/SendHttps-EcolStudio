@@ -41,6 +41,7 @@
     <Compile Include="ModuleJSON.py" />
     <Compile Include="ModulePostgres.py" />
     <Compile Include="ModulePS.py" />
+    <Compile Include="ModuleSendHttps.py" />
     <Compile Include="ModuleTime.py" />
     <Compile Include="__init__.py" />
   </ItemGroup>
