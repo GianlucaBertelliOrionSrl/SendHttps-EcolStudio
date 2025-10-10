@@ -8,10 +8,8 @@ from ModuleFunctions import *
 import datetime
 from datetime import datetime, timedelta, timezone
 
-
 from time import strftime
 from time import sleep
-
 
 def SleepMsec(millisec):
 	sec = millisec/1000.0
@@ -20,7 +18,7 @@ def SleepMsec(millisec):
 def SleepSec(sec):
 	sleep(sec)
 
-def Epoch():
+def epoch():
 	epoch_time = int(time.time())
 	return epoch_time
 

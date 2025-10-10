@@ -44,9 +44,6 @@ def invia_dati_https(secret_key, payload):
 		"accept": "*/*",
 		"Content-Type": "application/x-www-form-urlencoded"
 	}
-	
-	# s = str(MY_HEADERS)
-	# logger.info(s)
 
 	try:
 		response = requests.post(API_URL, headers=MY_HEADERS, data=payload)
@@ -55,15 +52,18 @@ def invia_dati_https(secret_key, payload):
 			#print(f"✅ Dato inviato: {payload}")
 			print(s)
 			logger.info(s)
+			return 1
 
 		else:
 			s = f"⚠️ Errore {response.status_code}: {response.text}"
 			#print(f"⚠️ Errore {response.status_code}: {response.text}")
 			print(s)
 			logger.info(s)
+			return -1
 
 	except Exception as e:
 		s = f"❌ Errore durante invio: {e}"
 		#print(f"❌ Errore durante invio: {e}")
 		print(s)
 		logger.info(s)
+		return -2

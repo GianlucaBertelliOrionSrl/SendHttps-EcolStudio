@@ -37,7 +37,7 @@ def verifica_connessione_db_postgres(DB_CONFIG):
 
             return 1
         else:
-            return None
+            return -1
 
 def leggi_dati(DB_CONFIG, db_table, staz_name, paramid_list, period_sec):
     try:
