@@ -213,86 +213,99 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
 	"""
 
 	secret_key = ConfigVarieJSON['secret_key']
+	url_send_https = ConfigVarieJSON['send_https']
+
 	logger.info("Avvio ciclo continuo")
 
+	to_do_send = 0
 	to_do_flag = False
 
 	while True:
 		now = datetime.utcnow()
 		minute = now.minute
 		second = now.second
+		
+		try:
+			# Condizione: solo se siamo su multipli di 5 minuti e secondi < 5
+			if (minute % 5 == 0) and (second < 5) and (to_do_send == 0):
+				to_do_send = 1
+				start_time = time.time()
+				try:
+					if verifica_connessione_db_postgres(db_config) != 1:
+						logger.warning("DB non connesso")
+					else:
+						# Lettura dati dal DB
+						logger.info("Invio dati https")
+						rows = leggi_dati(db_config, "averages.avg_60s_"+sigla, sigla, paramid_list, 60*60*24)
 
-		# Condizione: solo se siamo su multipli di 5 minuti e secondi < 5
-		if (minute % 5 == 0) and (second < 5):
-			start_time = time.time()
-			try:
-				if verifica_connessione_db_postgres(db_config) != 1:
-					logger.warning("DB non connesso")
-				else:
-					# Lettura dati dal DB
-					rows = leggi_dati(db_config, "averages.avg_60s_"+sigla, sigla, paramid_list, 60*60*24)
+						# # Estrazione valori dinamica
+						# valori_parametri = [float(row[4].replace(',', '.')) for row in rows[:len(param_name_list)]]
+						# dati_completi = dict(zip(param_name_list, valori_parametri))
 
-					# # Estrazione valori dinamica
-					# valori_parametri = [float(row[4].replace(',', '.')) for row in rows[:len(param_name_list)]]
-					# dati_completi = dict(zip(param_name_list, valori_parametri))
-
-					valori_parametri = []
-					for row in rows[:len(param_name_list)]:
-						valore_str = row[4]
-						if valore_str is None or valore_str.strip() == "":
-							# Gestione valore mancante
-							valore_float = None
-						else:
-							try:
-								# Sostituisco la virgola e converto a float
-								valore_float = float(valore_str.replace(',', '.'))
-							except ValueError:
-								# Se non è convertibile, metto None o un valore di default
+						valori_parametri = []
+						for row in rows[:len(param_name_list)]:
+							valore_str = row[4]
+							if valore_str is None or valore_str.strip() == "":
+								# Gestione valore mancante
 								valore_float = None
-						valori_parametri.append(valore_float)
+							else:
+								try:
+									# Sostituisco la virgola e converto a float
+									valore_float = float(valore_str.replace(',', '.'))
+								except ValueError:
+									# Se non è convertibile, metto None o un valore di default
+									valore_float = None
 
-					dati_completi = dict(zip(param_name_list, valori_parametri))
+							valori_parametri.append(valore_float)
 
-					# Epoch UTC arrotondato a 5 minuti
-					epoch_now = epoch_utc()
-					epoch_5min = epoch_now - (epoch_now % 300)
+						dati_completi = dict(zip(param_name_list, valori_parametri))
 
-					payload = {
-						"time": epoch_5min,
-						"version": "1.0",
-						**dati_completi
-					}
+						# Epoch UTC arrotondato a 5 minuti
+						epoch_now = epoch_utc()
+						epoch_5min = epoch_now - (epoch_now % 300)
 
-					# Invio HTTPS
-					ModuleSendHttps.invia_dati_https(secret_key, payload)
-					logger.info(f"Dati inviati: {dati_completi}")
+						payload = {
+							"time": epoch_5min,
+							"version": "1.0",
+							**dati_completi
+						}
 
-			except Exception:
-				logger.error("Errore durante il ciclo", exc_info=True)
+						# Invio HTTPS
+						ModuleSendHttps.invia_dati_https(secret_key, payload, url_send_https)
+						logger.info(f"Dati inviati: {dati_completi}")
 
-			# Attende l'intervallo specificato considerando il tempo di esecuzione
-			elapsed = time.time() - start_time
-			sleep_time = max(0, interval_sec - elapsed)
-			logger.info(f"Fine ciclo, prossimo ciclo tra {sleep_time:.1f} sec")
+				except Exception:
+					logger.error("Errore durante il ciclo", exc_info=True)
 
-		else:
-			# Esempio di log ogni 5 secondi
-			if (second % 5 == 0) and (not to_do_flag):
-				to_do_flag = True
-				print(PresentDateTime(0))  # stampa ogni 5 secondi
+				# Attende l'intervallo specificato considerando il tempo di esecuzione
+				elapsed = time.time() - start_time
+				sleep_time = max(0, interval_sec - elapsed)
+				logger.info(f"Fine ciclo, prossimo ciclo tra {sleep_time:.1f} sec")
 
-			elif second % 5 != 0:
-				to_do_flag = False
-		pass
+			else:
+				# Esempio di log ogni 5 secondi
+				if (second % 5 == 0) and (not to_do_flag):
+					to_do_flag = True
+					print(PresentDateTimeEng(0))  # stampa ogni 5 secondi
+
+				elif second % 5 != 0:
+					to_do_flag = False
+			pass
+
+			if (minute % 5 != 0) and (to_do_send != 0):
+				to_do_send = 1
+
+		except Exception as e:
+			s = f"Errore: {e}"		
+			print(s)
+			logger.error(s,  exc_info=True)
 
 		time.sleep(0.1)
-
 
 ########################
 
 def main(*args):
 	try:	
-		#logger = ModuleLogger.setup_logger(logging.DEBUG)
 
 		if os.getenv("VS_ENV") == "1":
 			s = "Avviato da Visual Studio"
@@ -349,7 +362,7 @@ def main(*args):
 
 		# --- Thread per eseguire il programma ciclico ---
 		interval_seconds = 300  # es. 5 minuti
-		thread = threading.Thread(target=programma_ciclico, args=(interval_seconds,DB_CONFIG,sigla, paramid_list, param_name_list,), daemon=True)
+		thread = threading.Thread(target=programma_ciclico, args=(interval_seconds,DB_CONFIG, sigla, paramid_list, param_name_list,), daemon=True)
 		thread.start()
 
 		# --- Il main thread può fare altro o rimanere attivo ---

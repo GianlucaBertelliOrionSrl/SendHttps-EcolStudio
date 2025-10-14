@@ -18,7 +18,7 @@ HEADERS = {
 }
 
 # Funzione per inviare una riga di dati
-def invia_dati_https(secret_key, payload):
+def invia_dati_https(secret_key, payload, url_send_https):
 	"""
 	row = tuple con i valori (epoch, version, voc, c6h6, h2s, pid)
   
@@ -39,6 +39,8 @@ def invia_dati_https(secret_key, payload):
 	# 	"pid": float(row[5])
 	# }
 
+	MY_API_URL = url_send_https
+
 	MY_HEADERS = {
 		"X-IOMS-KEY": secret_key,
 		"accept": "*/*",
@@ -46,7 +48,7 @@ def invia_dati_https(secret_key, payload):
 	}
 
 	try:
-		response = requests.post(API_URL, headers=MY_HEADERS, data=payload)
+		response = requests.post(MY_API_URL, headers=MY_HEADERS, data=payload)
 		if response.status_code == 200:
 			s = f"✅ Dato inviato: {payload}"
 			#print(f"✅ Dato inviato: {payload}")
