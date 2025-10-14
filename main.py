@@ -293,7 +293,7 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
 			pass
 
 			if (minute % 5 != 0) and (to_do_send != 0):
-				to_do_send = 1
+				to_do_send = 0
 
 		except Exception as e:
 			s = f"Errore: {e}"		
