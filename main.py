@@ -230,9 +230,27 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
 					logger.warning("DB non connesso")
 				else:
 					# Lettura dati dal DB
-					rows = leggi_dati(db_config, "averages.avg_60s_01479", sigla, paramid_list, 60*60*24)
-					# Estrazione valori dinamica
-					valori_parametri = [float(row[4]) for row in rows[:len(param_name_list)]]
+					rows = leggi_dati(db_config, "averages.avg_60s_"+sigla, sigla, paramid_list, 60*60*24)
+
+					# # Estrazione valori dinamica
+					# valori_parametri = [float(row[4].replace(',', '.')) for row in rows[:len(param_name_list)]]
+					# dati_completi = dict(zip(param_name_list, valori_parametri))
+
+					valori_parametri = []
+					for row in rows[:len(param_name_list)]:
+						valore_str = row[4]
+						if valore_str is None or valore_str.strip() == "":
+							# Gestione valore mancante
+							valore_float = None
+						else:
+							try:
+								# Sostituisco la virgola e converto a float
+								valore_float = float(valore_str.replace(',', '.'))
+							except ValueError:
+								# Se non è convertibile, metto None o un valore di default
+								valore_float = None
+						valori_parametri.append(valore_float)
+
 					dati_completi = dict(zip(param_name_list, valori_parametri))
 
 					# Epoch UTC arrotondato a 5 minuti
