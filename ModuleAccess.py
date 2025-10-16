@@ -21,8 +21,9 @@ from Global import *
 #database_path = r"C:\percorso\al\tuo\database.mdb"
 #database_path = root_path + "\\Config\\Rete.mdb"
 
-#abspath = os.path.dirname(os.path.realpath(sys.argv[0]))
-abspath = os.path.dirname(os.path.abspath(__file__))
+#abspath = (os.path.dirname(os.path.abspath(__file__))
+#           if '__file__' in globals()
+#           else os.path.dirname(os.path.realpath(sys.argv[0])))
 
 def GetReteDbConfigs(root_path, database_path):
 

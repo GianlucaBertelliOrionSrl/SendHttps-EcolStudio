@@ -26,17 +26,13 @@ import ModuleFunctions
 #         #self.ws = self.wb.get_sheet_by_name("Sheet1") # Deprecated
 #         self.ws = self.wb["Sheet1"]
 #         self.dest="destination.xlsx"
-
 #     # Write the value in the cell defined by row_dest+column_dest         
 #     def write_workbook(self,row_dest,column_dest,value):
 #         c = self.ws.cell(row = row_dest, column = column_dest)
-#         c.value = value
-    
+#         c.value = value   
 #     # Save excel file
 #     def save_excel(self) :  
 #         self.wb.save(self.dest)
-
-
 
 
 def copia_layout_colonne(ws, col_start_src, col_end_src, col_start_dst, righe_da_copiare=50):

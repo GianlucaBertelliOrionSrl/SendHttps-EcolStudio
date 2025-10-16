@@ -11,7 +11,17 @@ import inspect
 
 import ModuleContentFile
 
-absPath = os.path.dirname(os.path.realpath(sys.argv[0]))
+#abspath = (os.path.dirname(os.path.abspath(__file__))
+#           if '__file__' in globals()
+#           else os.path.dirname(os.path.realpath(sys.argv[0])))
+
+def get_base_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    elif '__file__' in globals():
+        return os.path.dirname(os.path.abspath(__file__))
+    else:
+        return os.path.dirname(os.path.realpath(sys.argv[0]))
 
 def create_temp_copy(file_path):
     # Crea una directory temporanea
@@ -72,8 +82,11 @@ def IsRoot():
 	else:
 		return True
 
+
 def WriteLog(s):
-	fileLog = os.path.join(absPath,"log","log.txt")
+	base_dir = get_base_dir()
+
+	fileLog = os.path.join(base_dir,"log","log.txt")
 	now = datetime.now()
 	time_now = now.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -90,14 +103,15 @@ def WriteLog(s):
 		s = ModuleContentFile.PresentStrDateFile()
 		l = ['log_',s,'.txt']
 		my_line = "".join(l)
-		fileLogNew = os.path.join(absPath,"log",my_line)
+		fileLogNew = os.path.join(base_dir,"log",my_line)
 		ModuleContentFile.RenameFile(fileLog,fileLogNew)
 	pass
 
 def WriteLog2(folder,file,s):
 	try:
-		absPath = os.path.dirname(os.path.realpath(sys.argv[0]))
-		fileLog = os.path.join(absPath,folder,file)
+		base_dir = get_base_dir()
+
+		fileLog = os.path.join(base_dir,folder,file)
 		now = datetime.now()
 		time_now = now.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -106,6 +120,7 @@ def WriteLog2(folder,file,s):
 		with open(fileLog, 'a+') as f:
 			f.write(my_line)
 			f.close
+
 	except Exception as e:
 		print("Generic error")
 
@@ -145,7 +160,8 @@ def CheckFileExists(filename):
 	return b
 
 def MakeDir(namedir,debug):
-	dirName = os.path.join(absPath,namedir)
+	base_dir = get_base_dir()
+	dirName = os.path.join(base_dir,namedir)
 
 	if debug == True:
 		print("namedir:"+namedir)

@@ -29,7 +29,7 @@ class ClassFtp(threading.Thread):
 	UploadCompleted = False
 	DownloadCompleted = False
 	ftp = FTP
-	absPath = ""
+	abspath = ""
 	active = False
 	host = ""
 	username = ""
@@ -62,7 +62,9 @@ class ClassFtp(threading.Thread):
 	def GetConfigFtp(self):
 		b = False
 
-		FileConfigVarie = os.path.join(ModuleFunctions.absPath,"cfg","Ftp.json")
+		base_dir = ModuleFunctions.get_base_dir()
+
+		FileConfigVarie = os.path.join(base_dir,"cfg","Ftp.json")
 		ConfigVarieJSON = FileToJSON(FileConfigVarie)
 
 		try:
@@ -204,7 +206,7 @@ class ClassFtp(threading.Thread):
 				break
 
 	def run(self,debug): 
-		self.absPath = ModuleFunctions.absPath
+		self.abspath = ModuleFunctions.get_base_dir()
 		b0 = b1 = b2 = b3 = False
 		local_folder = ""
 		b0 = self.GetConfigFtp()

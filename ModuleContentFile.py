@@ -21,7 +21,10 @@ import ModuleFunctions
 import ModuleTime
 from ModuleTime import *
 
-absPath = os.path.dirname(os.path.realpath(sys.argv[0]))
+#abspath = (os.path.dirname(os.path.abspath(__file__))
+#           if '__file__' in globals()
+#           else os.path.dirname(os.path.realpath(sys.argv[0])))
+
 PERIOD_OLD_LOGS = 60*60*24*30
 
 def ReadFile0(path):
@@ -86,7 +89,7 @@ def ReadFileToArrayStrings(FileDati):
 	list_of_lists = []
 
 	try:
-		#FileDati = absPath + "\\Giornaliero_Min.tmp"
+		#FileDati = abspath + "\\Giornaliero_Min.tmp"
 
 		with open(FileDati) as f:
 			for line in f:
@@ -103,7 +106,7 @@ def ReadFileToArrayStrings(FileDati):
 	return list_of_lists
 
 def WriteFileNew(filepath,my_line,mode):
-	#filepath = os.path.join(Global.absPath,filename)
+	
 	if mode==0:
 		with open(filepath, 'a+') as f:
 			f.write(my_line)
@@ -114,13 +117,13 @@ def WriteFileNew(filepath,my_line,mode):
 			f.close
 
 def AppendFile(filename,my_line):
-	#filepath = os.path.join(Global.absPath,filename)
+	
 	with open(filename, 'a+') as f:
 		f.write(my_line)
 		f.close
 
 def WriteFile(filename,my_line):
-	#filepath = os.path.join(Global.absPath,filename)
+	
 	with open(filename, 'w+') as f:
 		f.write(my_line)
 		f.close
@@ -152,7 +155,9 @@ def DeleteOldLogFiles(debug):
 	if debug==True:
 		print('Delete old LOG files')
 
-	fullpathLog = os.path.join(Global.absPath,'log')
+	base_dir = ModuleFunctions.get_base_dir()
+
+	fullpathLog = os.path.join(base_dir,'log')
 	os.chdir(fullpathLog)
 	list_files = sorted(os.listdir(fullpathLog))
 	n_files = 0

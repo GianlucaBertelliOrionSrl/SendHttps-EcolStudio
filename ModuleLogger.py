@@ -4,9 +4,24 @@ import logging
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 
+#abspath = (os.path.dirname(os.path.abspath(__file__))
+#           if '__file__' in globals()
+#           else os.path.dirname(os.path.realpath(sys.argv[0])))
+
+def get_base_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    elif '__file__' in globals():
+        return os.path.dirname(os.path.abspath(__file__))
+    else:
+        return os.path.dirname(os.path.realpath(sys.argv[0]))
+
 def setup_logger_V0(level=logging.INFO):
 	# Percorso base = cartella dove si trova l'eseguibile o lo script
-	base_dir = os.path.dirname(os.path.abspath(__file__))
+	#base_dir = os.path.dirname(os.path.abspath(__file__))
+
+	# Determina la directory base (diversa se l'app è "freezata" da PyInstaller)
+	base_dir = get_base_dir()
 
 	# Crea sottocartella LogFiles/YYYY-MM-DD
 	today_str = datetime.now().strftime("%Y-%m-%d")
@@ -40,8 +55,6 @@ def setup_logger_V0(level=logging.INFO):
 
 	return logger
 
-
-
 def setup_logger(level=logging.INFO, max_bytes=5_000_000, backup_count=10):
 	"""
 	Crea un logger compatibile con PyInstaller, con log rotante.
@@ -55,10 +68,7 @@ def setup_logger(level=logging.INFO, max_bytes=5_000_000, backup_count=10):
 	"""
 
 	# Determina la directory base (diversa se l'app è "freezata" da PyInstaller)
-	if getattr(sys, 'frozen', False):
-		base_dir = os.path.dirname(sys.executable)
-	else:
-		base_dir = os.path.dirname(os.path.abspath(__file__))
+	base_dir = get_base_dir()
 
 	# Crea sottocartella LogFiles/YYYY-MM-DD
 	today_str = datetime.now().strftime("%Y-%m-%d")

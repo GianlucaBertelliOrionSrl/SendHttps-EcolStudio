@@ -1,11 +1,6 @@
 import signal
 import sys
 
-#import ClassSignal
-#from ClassSignal import SignalExit
-
-#from ModuleFunctions import *
-
 class SIGINT_handler():
 	def __init__(self):
 		self.SIGINT = False

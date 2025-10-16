@@ -26,7 +26,10 @@ import ModuleLogger
 
 import Global
 
-abspath = os.path.dirname(os.path.realpath(sys.argv[0]))
+abspath = (os.path.dirname(os.path.abspath(__file__))
+           if '__file__' in globals()
+           else os.path.dirname(os.path.realpath(sys.argv[0])))
+
 root_path = "D:\\Dati_ETL_Total_181000076"
 logger = ModuleLogger.setup_logger(logging.DEBUG)
 
@@ -58,6 +61,16 @@ class ClassGeneralJSONConfig:
 
 ###############################################################################################
 
+def get_base_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    elif '__file__' in globals():
+        return os.path.dirname(os.path.abspath(__file__))
+    else:
+        return os.path.dirname(os.path.realpath(sys.argv[0]))
+
+######################################
+
 general_json_config = ClassGeneralJSONConfig()
 ConfigVarieJSON = None
 
@@ -66,8 +79,10 @@ ConfigVarieJSON = None
 def GetGraphConfig(sigla_staz):
 	global ConfigVarieJSON
 
+	base_dir = get_base_dir()
+
 	file_name = "Grafico" + sigla_staz + ".json"
-	FileConfigVarie = os.path.join(abspath,"cfg",file_name)
+	FileConfigVarie = os.path.join(base_dir,"cfg",file_name)
 
 	try:
 		ConfigVarieJSON = ModuleJSON.FileToJSON(FileConfigVarie)
@@ -124,8 +139,10 @@ def converti_valore(valore):
 def GetStationConfig(sigla_staz):
 	global ConfigVarieJSON
 
+	base_dir = get_base_dir()
+
 	file_name = "Config" + sigla_staz + ".json"
-	FileConfigVarie = os.path.join(abspath,"cfg",file_name)
+	FileConfigVarie = os.path.join(base_dir,"cfg",file_name)
 	
 	try:
 		ConfigVarieJSON = ModuleJSON.FileToJSON(FileConfigVarie)

@@ -24,10 +24,12 @@ class Daemon:
 		self.stderr = stderr
 		self.pidfile = pidfile
 	
-	def daemonize(self,absPath):
+	def daemonize(self,abspath):
 		"""do the UNIX double-fork magic, see Stevens' "Advanced 
 		Programming in the UNIX Environment" for details (ISBN 0201563177)
 		http://www.erlenstar.demon.co.uk/unix/faq_2.html#SEC16"""
+
+		base_dir = ModuleFunctions.get_base_dir()
 
 		try: 
 			pid = os.fork() 
@@ -47,10 +49,10 @@ class Daemon:
 			sys.stderr.write(s)
 			sys.exit(1)
 	
-		if (IsLinux() == True) and (absPath == ''):
-			absPath = LinuxFolder
+		if (IsLinux() == True) and (base_dir == ''):
+			base_dir = LinuxFolder
 
-		s = absPath
+		s = ModuleFunctions.get_base_dir()
 
 		#s1 = "Abs path folder = " + s
 		command_str = ['Abs path folder = ',s]
@@ -114,7 +116,7 @@ class Daemon:
 	def delpid(self):
 		os.remove(self.pidfile)
 
-	def start(self,absPath):
+	def start(self,abspath):
 		"""
 		Start the daemon
 		"""
@@ -132,7 +134,7 @@ class Daemon:
 			sys.stderr.write(message % self.pidfile)
 			sys.exit(1)
 		
-		self.daemonize(absPath)
+		self.daemonize(ModuleFunctions.get_base_dir())
 		self.run()
 
 	def stop(self):

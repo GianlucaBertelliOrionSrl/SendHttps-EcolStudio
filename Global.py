@@ -4,10 +4,10 @@
 # ClassSms = ClassSms()
 
 GlobalExit = 0
-absPath = ""
+abspath = ""
 
 class ClassStazione(object):
-    absPath = ""
+    abspath = ""
     def __init__(self):
         self.parametri_cfg = {}
         self.parametri = []
