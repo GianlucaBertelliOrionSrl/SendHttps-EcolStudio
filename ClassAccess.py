@@ -5,9 +5,11 @@ from win32com.client import Dispatch
 import ModuleFunctions
 from ModuleFunctions import *
 
-abspath = (os.path.dirname(os.path.abspath(__file__))
-           if '__file__' in globals()
-           else os.path.dirname(os.path.realpath(sys.argv[0])))
+from ModuleUtils import get_base_dir
+
+# abspath = (os.path.dirname(os.path.abspath(__file__))
+#            if '__file__' in globals()
+#            else os.path.dirname(os.path.realpath(sys.argv[0])))
 
 ########################################
 

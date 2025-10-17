@@ -3,6 +3,8 @@
 import sys, os, time, atexit
 from signal import SIGTERM 
 
+from ModuleUtils import get_base_dir
+
 class Daemon:
 	"""
 	A generic daemon class.

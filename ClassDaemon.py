@@ -7,6 +7,8 @@ frame = inspect.currentframe()
 import ModuleFunctions
 from ModuleFunctions import *
 
+from ModuleUtils import get_base_dir
+
 #LinuxFolder = '/mnt/sda2/home/AcqApm2'
 LinuxFolder = '/mnt/mmcblk0p1/home/AcqApm2'
 

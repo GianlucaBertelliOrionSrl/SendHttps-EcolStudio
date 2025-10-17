@@ -5,6 +5,8 @@ from urllib.parse import urlencode
 import logging
 import ModuleLogger
 
+from ModuleUtils import get_base_dir
+
 logger = ModuleLogger.setup_logger(logging.DEBUG)
 
 # Configurazione

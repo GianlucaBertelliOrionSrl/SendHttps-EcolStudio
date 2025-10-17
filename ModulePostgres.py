@@ -6,6 +6,8 @@ import time
 import ModuleTime
 from ModuleTime import *
 
+from ModuleUtils import get_base_dir
+
 #def verifica_connessione_db_postgres(db_ip,db_name,db_user,db_password,db_port):
 def verifica_connessione_db_postgres(DB_CONFIG):
 	try:

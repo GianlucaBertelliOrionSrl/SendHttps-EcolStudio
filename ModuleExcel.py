@@ -19,6 +19,8 @@ from win32com.client import Dispatch
 
 import ModuleFunctions
 
+from ModuleUtils import get_base_dir
+
 # # Class to manage excel data with openpyxl.
 # class Copy_excel:
 #     def __init__(self,src):

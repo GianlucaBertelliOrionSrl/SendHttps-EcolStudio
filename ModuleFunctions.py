@@ -9,19 +9,23 @@ import datetime
 from datetime import datetime
 import inspect
 
-import ModuleContentFile
+#import ModuleContentFile
+
+
+from ModuleUtils import get_base_dir
+
 
 #abspath = (os.path.dirname(os.path.abspath(__file__))
 #           if '__file__' in globals()
 #           else os.path.dirname(os.path.realpath(sys.argv[0])))
 
-def get_base_dir():
-    if getattr(sys, 'frozen', False):
-        return os.path.dirname(sys.executable)
-    elif '__file__' in globals():
-        return os.path.dirname(os.path.abspath(__file__))
-    else:
-        return os.path.dirname(os.path.realpath(sys.argv[0]))
+# def get_base_dir():
+#     if getattr(sys, 'frozen', False):
+#         return os.path.dirname(sys.executable)
+#     elif '__file__' in globals():
+#         return os.path.dirname(os.path.abspath(__file__))
+#     else:
+#         return os.path.dirname(os.path.realpath(sys.argv[0]))
 
 def create_temp_copy(file_path):
     # Crea una directory temporanea

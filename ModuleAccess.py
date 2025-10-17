@@ -10,6 +10,8 @@ from typing import List, Dict, Any, Tuple
 import ModuleFunctions
 from ModuleFunctions import *
 
+from ModuleUtils import get_base_dir
+
 import ClassAccess
 from ClassAccess import *
 
@@ -20,7 +22,6 @@ from Global import *
 # Specifica il percorso del tuo database Access97
 #database_path = r"C:\percorso\al\tuo\database.mdb"
 #database_path = root_path + "\\Config\\Rete.mdb"
-
 #abspath = (os.path.dirname(os.path.abspath(__file__))
 #           if '__file__' in globals()
 #           else os.path.dirname(os.path.realpath(sys.argv[0])))

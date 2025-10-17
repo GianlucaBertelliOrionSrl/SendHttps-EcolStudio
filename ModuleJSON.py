@@ -1,5 +1,7 @@
 import json
 
+from ModuleUtils import get_base_dir
+
 def PythonToJSON():
 	x = {
 		"name": "John",

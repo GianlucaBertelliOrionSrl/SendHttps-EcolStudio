@@ -1,6 +1,8 @@
 import signal
 import sys
 
+from ModuleUtils import get_base_dir
+
 class SIGINT_handler():
 	def __init__(self):
 		self.SIGINT = False

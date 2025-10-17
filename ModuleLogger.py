@@ -1,26 +1,90 @@
-import os
+﻿import os
 import sys
 import logging
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 
+from ModuleUtils import get_base_dir
+
 #abspath = (os.path.dirname(os.path.abspath(__file__))
 #           if '__file__' in globals()
 #           else os.path.dirname(os.path.realpath(sys.argv[0])))
 
-def get_base_dir():
-    if getattr(sys, 'frozen', False):
-        return os.path.dirname(sys.executable)
-    elif '__file__' in globals():
-        return os.path.dirname(os.path.abspath(__file__))
-    else:
-        return os.path.dirname(os.path.realpath(sys.argv[0]))
+# def get_base_dir():
+#     if getattr(sys, 'frozen', False):
+#         return os.path.dirname(sys.executable)
+#     elif '__file__' in globals():
+#         return os.path.dirname(os.path.abspath(__file__))
+#     else:
+#         return os.path.dirname(os.path.realpath(sys.argv[0]))
+
+
+"""
+    Crea un logger compatibile con PyInstaller, servizi e script Python.
+    Ogni giorno crea un nuovo file log nella cartella:
+        <cartella_eseguibile_o_script>/LogFiles/LogFile_YYYY-MM-DD.log
+
+    Parametri:
+      - level: livello di logging (es. logging.DEBUG)
+      - max_bytes: dimensione massima per ogni file log (default 5 MB)
+      - backup_count: numero massimo di file log conservati (default 10)
+    """
+
+# 🔹 Setup logger giornaliero con rotazione
+def setup_logger(level=logging.INFO, max_bytes=5_000_000, backup_count=10):
+    # 🔸 1. Determina la directory base
+    base_dir = get_base_dir()
+
+    # 🔸 2. Crea sottocartella "LogFiles" se non esiste
+    log_dir = os.path.join(base_dir, "LogFiles")
+    os.makedirs(log_dir, exist_ok=True)
+
+    # 🔸 3. Nome file log con data giornaliera
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    log_file = os.path.join(log_dir, f"LogFile_{today_str}.log")
+
+    # 🔸 4. Crea/recupera il logger
+    logger = logging.getLogger("AppLogger")
+
+    # 🔸 5. Rimuove eventuali handler precedenti (evita duplicati e percorsi vecchi)
+    if logger.hasHandlers():
+        logger.handlers.clear()
+
+    # 🔸 6. Configura livello e formato
+    logger.setLevel(level)
+    formatter = logging.Formatter(
+        "%(asctime)s | %(levelname)-8s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+
+    # 🔸 7. Handler console
+    ch = logging.StreamHandler()
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    # 🔸 8. Handler file rotante
+    fh = RotatingFileHandler(
+        log_file,
+        maxBytes=max_bytes,
+        backupCount=backup_count,
+        encoding="utf-8"
+    )
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
+    # 🔸 9. Messaggio iniziale
+    logger.info(f"Logger inizializzato. Scrive su: {log_file}")
+    logger.debug(f"Base dir: {base_dir}")
+
+    return logger
+
+############################################################################
 
 def setup_logger_V0(level=logging.INFO):
 	# Percorso base = cartella dove si trova l'eseguibile o lo script
 	#base_dir = os.path.dirname(os.path.abspath(__file__))
 
-	# Determina la directory base (diversa se l'app � "freezata" da PyInstaller)
+	# Determina la directory base (diversa se l'app è "freezata" da PyInstaller)
 	base_dir = get_base_dir()
 
 	# Crea sottocartella LogFiles/YYYY-MM-DD
@@ -35,7 +99,7 @@ def setup_logger_V0(level=logging.INFO):
 	logger = logging.getLogger("AppLogger")
 	logger.setLevel(level)
 
-	# Evita duplicazione handler se setup_logger viene chiamato pi� volte
+	# Evita duplicazione handler se setup_logger viene chiamato più volte
 	if not logger.handlers:
 		# Formato del log
 		formatter = logging.Formatter(
@@ -54,61 +118,6 @@ def setup_logger_V0(level=logging.INFO):
 		logger.addHandler(fh)
 
 	return logger
-
-def setup_logger(level=logging.INFO, max_bytes=5_000_000, backup_count=10):
-	"""
-	Crea un logger compatibile con PyInstaller, con log rotante.
-	Salva i log in:
-	  <cartella_eseguibile_o_script>/LogFiles/YYYY-MM-DD/LogFile.log
-
-	Parametri:
-	  - level: livello di logging (es. logging.DEBUG)
-	  - max_bytes: dimensione massima per file log prima della rotazione (default 5 MB)
-	  - backup_count: numero massimo di file log conservati (default 10)
-	"""
-
-	# Determina la directory base (diversa se l'app � "freezata" da PyInstaller)
-	base_dir = get_base_dir()
-
-	# Crea sottocartella LogFiles/YYYY-MM-DD
-	today_str = datetime.now().strftime("%Y-%m-%d")
-	log_dir = os.path.join(base_dir, "LogFiles", today_str)
-	os.makedirs(log_dir, exist_ok=True)
-
-	# Nome file log
-	log_file = os.path.join(log_dir, "LogFile.log")
-
-	# Crea il logger
-	logger = logging.getLogger("AppLogger")
-	logger.setLevel(level)
-
-	# Evita duplicazione handler
-	if not logger.handlers:
-		formatter = logging.Formatter(
-			"%(asctime)s | %(levelname)s | %(message)s",
-			datefmt="%Y-%m-%d %H:%M:%S"
-		)
-
-		# Handler console
-		ch = logging.StreamHandler()
-		ch.setFormatter(formatter)
-		logger.addHandler(ch)
-
-		# Handler file rotante
-		fh = RotatingFileHandler(
-			log_file,
-			maxBytes=max_bytes,
-			backupCount=backup_count,
-			encoding="utf-8"
-		)
-		fh.setFormatter(formatter)
-		logger.addHandler(fh)
-
-		logger.info(f"Logger inizializzato, scrive su: {log_file}")
-
-	return logger
-
-
 
 # # Esempio di utilizzo
 # if __name__ == "__main__":

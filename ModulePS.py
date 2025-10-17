@@ -11,6 +11,8 @@ from datetime import datetime
 from time import sleep
 import subprocess
 
+from ModuleUtils import get_base_dir
+
 try:
 	import psutil
 	psutilExist = True

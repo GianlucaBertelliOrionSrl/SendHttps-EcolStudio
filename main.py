@@ -21,17 +21,21 @@ from ModulePostgres import *
 import ModuleSendHttps
 from ModuleSendHttps import *
 
+from ModuleUtils import get_base_dir
+
 import logging
 import ModuleLogger
 
+from ModuleLogger import setup_logger
+
 import Global
 
-abspath = (os.path.dirname(os.path.abspath(__file__))
-           if '__file__' in globals()
-           else os.path.dirname(os.path.realpath(sys.argv[0])))
+# abspath = (os.path.dirname(os.path.abspath(__file__))
+#            if '__file__' in globals()
+#            else os.path.dirname(os.path.realpath(sys.argv[0])))
 
 root_path = "D:\\Dati_ETL_Total_181000076"
-logger = ModuleLogger.setup_logger(logging.DEBUG)
+#logger = ModuleLogger.setup_logger(logging.DEBUG)
 
 ###############################################################################################
 
@@ -61,13 +65,13 @@ class ClassGeneralJSONConfig:
 
 ###############################################################################################
 
-def get_base_dir():
-    if getattr(sys, 'frozen', False):
-        return os.path.dirname(sys.executable)
-    elif '__file__' in globals():
-        return os.path.dirname(os.path.abspath(__file__))
-    else:
-        return os.path.dirname(os.path.realpath(sys.argv[0]))
+# def get_base_dir():
+#     if getattr(sys, 'frozen', False):
+#         return os.path.dirname(sys.executable)
+#     elif '__file__' in globals():
+#         return os.path.dirname(os.path.abspath(__file__))
+#     else:
+#         return os.path.dirname(os.path.realpath(sys.argv[0]))
 
 ######################################
 
@@ -322,6 +326,12 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
 ########################
 
 def main(*args):
+	# Inizializza il logger all’avvio
+	logger = setup_logger(logging.DEBUG)
+
+	logger.info("Applicazione avviata")
+	logger.debug("Messaggio di debug per sviluppo")
+
 	try:	
 
 		if os.getenv("VS_ENV") == "1":

@@ -11,6 +11,8 @@ import contextlib
 import ModuleFunctions
 from ModuleFunctions import *
 
+from ModuleUtils import get_base_dir
+
 import ModuleTime
 from ModuleTime import *
 

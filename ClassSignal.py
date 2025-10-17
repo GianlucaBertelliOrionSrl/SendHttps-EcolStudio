@@ -4,6 +4,8 @@ import signal
 import os
 import contextlib
 
+from ModuleUtils import get_base_dir
+
 class SignalExit(object):
 	__slots__ = 'kill'
 

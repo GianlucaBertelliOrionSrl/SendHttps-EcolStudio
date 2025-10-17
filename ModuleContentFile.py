@@ -16,7 +16,8 @@ from time import sleep
 from pathlib import Path
 
 import ModuleFunctions
-#from ModuleFunctions import *
+
+from ModuleUtils import get_base_dir
 
 import ModuleTime
 from ModuleTime import *
@@ -56,7 +57,7 @@ def ReadFile(path):
 		s1 = f.readline()
 		f.close()
 	except Exception as e:
-		print(stre)
+		print(str(e))
 
 def ReadFileToString(path):
 	try:
