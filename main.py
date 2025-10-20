@@ -396,6 +396,7 @@ def main(*args):
 		try:
 			while True:
 				time.sleep(0.1)  # main thread attivo, thread ciclico lavora in background
+				
 
 		except KeyboardInterrupt:
 			logger.info("Programma terminato dall'utente")

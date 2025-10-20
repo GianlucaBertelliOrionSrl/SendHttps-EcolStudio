@@ -1,23 +1,15 @@
 ﻿import os
 import sys
 import logging
+import threading
+import time
+
 from datetime import datetime
-from logging.handlers import RotatingFileHandler
+
+#from logging.handlers import RotatingFileHandler
+from logging.handlers import TimedRotatingFileHandler
 
 from ModuleUtils import get_base_dir
-
-#abspath = (os.path.dirname(os.path.abspath(__file__))
-#           if '__file__' in globals()
-#           else os.path.dirname(os.path.realpath(sys.argv[0])))
-
-# def get_base_dir():
-#     if getattr(sys, 'frozen', False):
-#         return os.path.dirname(sys.executable)
-#     elif '__file__' in globals():
-#         return os.path.dirname(os.path.abspath(__file__))
-#     else:
-#         return os.path.dirname(os.path.realpath(sys.argv[0]))
-
 
 """
     Crea un logger compatibile con PyInstaller, servizi e script Python.
@@ -31,93 +23,148 @@ from ModuleUtils import get_base_dir
     """
 
 # 🔹 Setup logger giornaliero con rotazione
-def setup_logger(level=logging.INFO, max_bytes=5_000_000, backup_count=10):
-    # 🔸 1. Determina la directory base
+def setup_logger(level=logging.INFO):
+    """
+    Crea un logger che scrive in:
+      <base_dir>/LogFiles/LogFile_YYYY-MM-DD.log
+    Il file cambia automaticamente a mezzanotte.
+    """
     base_dir = get_base_dir()
-
-    # 🔸 2. Crea sottocartella "LogFiles" se non esiste
     log_dir = os.path.join(base_dir, "LogFiles")
     os.makedirs(log_dir, exist_ok=True)
 
-    # 🔸 3. Nome file log con data giornaliera
-    today_str = datetime.now().strftime("%Y-%m-%d")
-    log_file = os.path.join(log_dir, f"LogFile_{today_str}.log")
+    def make_logger_for_today():
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        log_file = os.path.join(log_dir, f"LogFile_{today_str}.log")
 
-    # 🔸 4. Crea/recupera il logger
-    logger = logging.getLogger("AppLogger")
+        logger = logging.getLogger("AppLogger")
+        if logger.hasHandlers():
+            logger.handlers.clear()
 
-    # 🔸 5. Rimuove eventuali handler precedenti (evita duplicati e percorsi vecchi)
-    if logger.hasHandlers():
-        logger.handlers.clear()
+        logger.setLevel(level)
+        formatter = logging.Formatter(
+            "%(asctime)s | %(levelname)-8s | %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
+        )
 
-    # 🔸 6. Configura livello e formato
-    logger.setLevel(level)
-    formatter = logging.Formatter(
-        "%(asctime)s | %(levelname)-8s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
+        ch = logging.StreamHandler()
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
 
-    # 🔸 7. Handler console
-    ch = logging.StreamHandler()
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+        fh = logging.FileHandler(log_file, encoding="utf-8")
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
 
-    # 🔸 8. Handler file rotante
-    fh = RotatingFileHandler(
-        log_file,
-        maxBytes=max_bytes,
-        backupCount=backup_count,
-        encoding="utf-8"
-    )
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
+        logger.info(f"Logger inizializzato: {log_file}")
+        return logger, today_str
 
-    # 🔸 9. Messaggio iniziale
-    logger.info(f"Logger inizializzato. Scrive su: {log_file}")
-    logger.debug(f"Base dir: {base_dir}")
+    # Crea logger iniziale
+    logger, current_date = make_logger_for_today()
+
+    # Thread che controlla il cambio giorno
+    def watch_day_change():
+        nonlocal logger, current_date
+        while True:
+            time.sleep(0.1)
+            new_date = datetime.now().strftime("%Y-%m-%d")
+            if new_date != current_date:
+                logger.info("Cambio data rilevato, creazione nuovo file log...")
+                logger, current_date = make_logger_for_today()
+
+    threading.Thread(target=watch_day_change, daemon=True).start()
 
     return logger
 
+
+#TENERE ESEMPIO
+# def setup_logger_V1(level=logging.INFO, max_bytes=5_000_000, backup_count=10):
+#     # 🔸 1. Determina la directory base
+#     base_dir = get_base_dir()
+
+#     # 🔸 2. Crea sottocartella "LogFiles" se non esiste
+#     log_dir = os.path.join(base_dir, "LogFiles")
+#     os.makedirs(log_dir, exist_ok=True)
+
+#     # 🔸 3. Nome file log con data giornaliera
+#     today_str = datetime.now().strftime("%Y-%m-%d")
+#     log_file = os.path.join(log_dir, f"LogFile_{today_str}.log")
+
+#     # 🔸 4. Crea/recupera il logger
+#     logger = logging.getLogger("AppLogger")
+
+#     # 🔸 5. Rimuove eventuali handler precedenti (evita duplicati e percorsi vecchi)
+#     if logger.hasHandlers():
+#         logger.handlers.clear()
+
+#     # 🔸 6. Configura livello e formato
+#     logger.setLevel(level)
+#     formatter = logging.Formatter(
+#         "%(asctime)s | %(levelname)-8s | %(message)s",
+#         datefmt="%Y-%m-%d %H:%M:%S"
+#     )
+
+#     # 🔸 7. Handler console
+#     ch = logging.StreamHandler()
+#     ch.setFormatter(formatter)
+#     logger.addHandler(ch)
+
+#     # 🔸 8. Handler file rotante
+#     fh = RotatingFileHandler(
+#         log_file,
+#         maxBytes=max_bytes,
+#         backupCount=backup_count,
+#         encoding="utf-8"
+#     )
+#     fh.setFormatter(formatter)
+#     logger.addHandler(fh)
+
+#     # 🔸 9. Messaggio iniziale
+#     logger.info(f"Logger inizializzato. Scrive su: {log_file}")
+#     logger.debug(f"Base dir: {base_dir}")
+
+#     return logger
+
 ############################################################################
 
-def setup_logger_V0(level=logging.INFO):
-	# Percorso base = cartella dove si trova l'eseguibile o lo script
-	#base_dir = os.path.dirname(os.path.abspath(__file__))
+#TENERE ESEMPIO
+# def setup_logger_V0(level=logging.INFO):
+# 	# Percorso base = cartella dove si trova l'eseguibile o lo script
+# 	#base_dir = os.path.dirname(os.path.abspath(__file__))
 
-	# Determina la directory base (diversa se l'app è "freezata" da PyInstaller)
-	base_dir = get_base_dir()
+# 	# Determina la directory base (diversa se l'app è "freezata" da PyInstaller)
+# 	base_dir = get_base_dir()
 
-	# Crea sottocartella LogFiles/YYYY-MM-DD
-	today_str = datetime.now().strftime("%Y-%m-%d")
-	log_dir = os.path.join(base_dir, "LogFiles", today_str)
-	os.makedirs(log_dir, exist_ok=True)
+# 	# Crea sottocartella LogFiles/YYYY-MM-DD
+# 	today_str = datetime.now().strftime("%Y-%m-%d")
+# 	log_dir = os.path.join(base_dir, "LogFiles", today_str)
+# 	os.makedirs(log_dir, exist_ok=True)
 
-	# Nome file log
-	log_file = os.path.join(log_dir, "LogFile.log")
+# 	# Nome file log
+# 	log_file = os.path.join(log_dir, "LogFile.log")
 
-	# Crea il logger
-	logger = logging.getLogger("AppLogger")
-	logger.setLevel(level)
+# 	# Crea il logger
+# 	logger = logging.getLogger("AppLogger")
+# 	logger.setLevel(level)
 
-	# Evita duplicazione handler se setup_logger viene chiamato più volte
-	if not logger.handlers:
-		# Formato del log
-		formatter = logging.Formatter(
-			"%(asctime)s | %(levelname)s | %(message)s",
-			datefmt="%Y-%m-%d %H:%M:%S"
-		)
+# 	# Evita duplicazione handler se setup_logger viene chiamato più volte
+# 	if not logger.handlers:
+# 		# Formato del log
+# 		formatter = logging.Formatter(
+# 			"%(asctime)s | %(levelname)s | %(message)s",
+# 			datefmt="%Y-%m-%d %H:%M:%S"
+# 		)
 
-		# Handler per console
-		ch = logging.StreamHandler()
-		ch.setFormatter(formatter)
-		logger.addHandler(ch)
+# 		# Handler per console
+# 		ch = logging.StreamHandler()
+# 		ch.setFormatter(formatter)
+# 		logger.addHandler(ch)
 
-		# Handler per file
-		fh = logging.FileHandler(log_file, encoding="utf-8")
-		fh.setFormatter(formatter)
-		logger.addHandler(fh)
+# 		# Handler per file
+# 		fh = logging.FileHandler(log_file, encoding="utf-8")
+# 		fh.setFormatter(formatter)
+# 		logger.addHandler(fh)
 
-	return logger
+# 	return logger
 
 # # Esempio di utilizzo
 # if __name__ == "__main__":
