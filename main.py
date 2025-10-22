@@ -9,9 +9,12 @@ import sys, os
 import argparse
 import psutil
 import string
-import time
+
 import win32gui
 import threading
+
+import time
+from datetime import datetime
 
 import ModuleJSON
 
@@ -64,16 +67,6 @@ class ClassGeneralJSONConfig:
 		pass
 
 ###############################################################################################
-
-# def get_base_dir():
-#     if getattr(sys, 'frozen', False):
-#         return os.path.dirname(sys.executable)
-#     elif '__file__' in globals():
-#         return os.path.dirname(os.path.abspath(__file__))
-#     else:
-#         return os.path.dirname(os.path.realpath(sys.argv[0]))
-
-######################################
 
 general_json_config = ClassGeneralJSONConfig()
 ConfigVarieJSON = None
@@ -220,9 +213,6 @@ def programma_ciclico_V0(interval_sec=300, db_config=None, sigla=None, paramid_l
 		time.sleep(0.1)
 
 ########################
-
-import time
-from datetime import datetime
 
 def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list=None, param_name_list=None):
 	"""
