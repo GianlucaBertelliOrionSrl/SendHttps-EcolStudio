@@ -175,7 +175,8 @@ def programma_ciclico_V0(interval_sec=300, db_config=None, sigla=None, paramid_l
 					#(DB_CONFIG, db_table, staz_name, paramid_list, period_sec)
 					#secret_key = ConfigVarieJSON['secret_key']
 
-					r = leggi_dati(db_config, "averages.avg_60s_01479", sigla, paramid_list, 60*60*24)
+					#r = leggi_dati(db_config, "averages.avg_60s_01479", sigla, paramid_list, 60*60*24)
+					r = leggi_dati(db_config, "averages.avg_60s_01479", sigla, paramid_list, 60*15)
 		
 					valori_parametri = [float(r[0][4]), float(r[1][4]), float(r[2][4]), float(r[3][4])]  # valori letti dinamicamente		
 					dati_completi = dict(zip(param_name_list, valori_parametri))
