@@ -247,7 +247,12 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
 					else:
 						# Lettura dati dal DB
 						logger.info("Invio dati https")
-						rows = leggi_dati(db_config, "averages.avg_60s_"+sigla, sigla, paramid_list, 60*60*24)
+
+						##rows = leggi_dati(db_config, "averages.avg_60s_"+sigla, paramid_list, 60*60*24*31)
+						#rows = leggi_dati(db_config, "avg_60s_"+sigla, sigla, paramid_list, 60*60*24*31)
+
+						rows = leggi_dati(db_config, "averages.avg_60s_"+sigla, paramid_list, 60*60*24*31, logger=logger)
+						
 
 						# # Estrazione valori dinamica
 						# valori_parametri = [float(row[4].replace(',', '.')) for row in rows[:len(param_name_list)]]
@@ -258,7 +263,7 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
 							valore_str = row[4]
 							if valore_str is None or valore_str.strip() == "":
 								# Gestione valore mancante
-								valore_float = None
+								valore_float  = None
 							else:
 								try:
 									# Sostituisco la virgola e converto a float

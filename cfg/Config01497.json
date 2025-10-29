@@ -12,7 +12,8 @@
 	"db_password": "edac2000",
 	"db_ip":"localhost",
 	"db_port":5432,
-
+	
+	"send_https": "https://ioms.tabsrl.com/api/measures/STBN9NW",
 	"secret_key": "Tbggllb3x46t0J3nY3Nj_kGpUY_jEp",
 	"opc_process": "ATM05_OP1_01497",
 	"var_dashboard": "IOMS1",
@@ -21,7 +22,7 @@
 		{
 		  "name_param": "pid",
 		  "meas_unit": "ppb",
-		  "index_param": 11,
+		  "index_param": 1,
 		  "grafana_code": "X-105",
 		  "paramid": 11,
 		  "type_string": 2,
@@ -38,8 +39,9 @@
 		{
 		  "name_param": "voc",
 		  "meas_unit": "ppm",
+		  "index_param": 3,
 		  "grafana_code": "M-33",
-		  "paramid": 2,
+		  "paramid": 3,
 		  "type_string": 2,
 		  "use_timestamp": 0,
 		  "time_prefix": "&timestamp=",
@@ -54,6 +56,7 @@
 		{
 		  "name_param": "c6h6",
 		  "meas_unit": "ppb",
+		  "index_param": 5,
 		  "grafana_code": "P-20",
 		  "paramid": 4,
 		  "type_string": 2,
@@ -70,8 +73,9 @@
 		{
 		  "name_param": "h2s",
 		  "meas_unit": "ppb",
+		  "index_param": 6,
 		  "grafana_code": "P-11",
-		  "paramid": 5,
+		  "paramid": 6,
 		  "type_string": 2,
 		  "use_timestamp": 0,
 		  "time_prefix": "&timestamp=",
