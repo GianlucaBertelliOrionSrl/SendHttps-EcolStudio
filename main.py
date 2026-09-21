@@ -43,28 +43,28 @@ root_path = "D:\\Dati_ETL_Total_181000076"
 ###############################################################################################
 
 class ClassGeneralJSONConfig:
-	def __init__(self, **kwargs):
-		self.param_configurations = []
+    def __init__(self, **kwargs):
+        self.param_configurations = []
 
-		for key, value in kwargs.items():
-			setattr(self, key, value)
-		pass
-	
-	def add_configuration(self, param_configurations):
-		self.param_configurations.append(param_configurations)
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        pass
 
-	def __str__(self):
-		return f'{self.Sigla}: {self.Codice}: {self.Nome}'
+    def add_configuration(self, param_configurations):
+        self.param_configurations.append(param_configurations)
 
-	def display_attributes(self):
-		# Usa vars() per ottenere un dizionario degli attributi
-		attributi = vars(self)
-		#print(attributi)
+    def __str__(self):
+        return f'{self.Sigla}: {self.Codice}: {self.Nome}'
 
-		# Stampa ciascun attributo e valore
-		for chiave, valore in attributi.items():
-			print(f"{chiave}: {valore}")
-		pass
+    def display_attributes(self):
+        # Usa vars() per ottenere un dizionario degli attributi
+        attributi = vars(self)
+        #print(attributi)
+
+        # Stampa ciascun attributo e valore
+        for chiave, valore in attributi.items():
+            print(f"{chiave}: {valore}")
+        pass
 
 ###############################################################################################
 
@@ -74,346 +74,356 @@ ConfigVarieJSON = None
 ###############################################################################################
 
 def GetGraphConfig(sigla_staz):
-	global ConfigVarieJSON
+    global ConfigVarieJSON
 
-	base_dir = get_base_dir()
+    base_dir = get_base_dir()
 
-	file_name = "Grafico" + sigla_staz + ".json"
-	FileConfigVarie = os.path.join(base_dir,"cfg",file_name)
+    file_name = "Grafico" + sigla_staz + ".json"
+    FileConfigVarie = os.path.join(base_dir,"cfg",file_name)
 
-	try:
-		ConfigVarieJSON = ModuleJSON.FileToJSON(FileConfigVarie)
+    try:
+        ConfigVarieJSON = ModuleJSON.FileToJSON(FileConfigVarie)
 
-	except Exception as e:
-		print(f"Errore: {e}")
-		return -1		
+    except Exception as e:
+        print(f"Errore: {e}")
+        return -1
 
-	return 1
+    return 1
 
 ###############################################################################################
 
 def normalizza_colore(color):
-	"""
-	Accetta:
-	- nome colore (stringa es: "blue")
-	- codice hex stringa es: "#FF0000"
-	- valore numerico es: 0xFF0000 o 16711680
-	Ritorna sempre una stringa accettata da XlsxWriter
-	"""
-	if isinstance(color, int):
-		# numerico → converto in hex #RRGGBB
-		return "#{:06X}".format(color)
+    """
+    Accetta:
+    - nome colore (stringa es: "blue")
+    - codice hex stringa es: "#FF0000"
+    - valore numerico es: 0xFF0000 o 16711680
+    Ritorna sempre una stringa accettata da XlsxWriter
+    """
+    if isinstance(color, int):
+        # numerico → converto in hex #RRGGBB
+        return "#{:06X}".format(color)
 
-	elif isinstance(color, str):
-		# già stringa → la ritorno così com’è
-		return color.strip()
+    elif isinstance(color, str):
+        # già stringa → la ritorno così com'è
+        return color.strip()
 
-	else:
-		raise ValueError(f"Formato colore non valido: {color}")
+    else:
+        raise ValueError(f"Formato colore non valido: {color}")
 
 #############################################
 
 def converti_valore(valore):
-	if valore == "":
-		return None  # valore nullo
+    if valore == "":
+        return None  # valore nullo
 
-	elif isinstance(valore, str):
-		# sostituisco la virgola con il punto per numeri decimali
-		valore_modificato = valore.replace(',', '.')
-		try:
-			# provo a convertire in int o float
-			if '.' in valore_modificato:
-				return float(valore_modificato)
-			else:
-				return int(valore_modificato)
-		except ValueError:
-			return valore  # se non è un numero, restituisco la stringa originale
-	else:
-		return valore  # se è già un numero
+    elif isinstance(valore, str):
+        # sostituisco la virgola con il punto per numeri decimali
+        valore_modificato = valore.replace(',', '.')
+        try:
+            # provo a convertire in int o float
+            if '.' in valore_modificato:
+                return float(valore_modificato)
+            else:
+                return int(valore_modificato)
+        except ValueError:
+            return valore  # se non è un numero, restituisco la stringa originale
+    else:
+        return valore  # se è già un numero
 
 #############################################
 
 def GetStationConfig(sigla_staz):
-	global ConfigVarieJSON
+    global ConfigVarieJSON
 
-	base_dir = get_base_dir()
+    base_dir = get_base_dir()
 
-	file_name = "Config" + sigla_staz + ".json"
-	FileConfigVarie = os.path.join(base_dir,"cfg",file_name)
-	
-	try:
-		ConfigVarieJSON = ModuleJSON.FileToJSON(FileConfigVarie)
+    file_name = "Config" + sigla_staz + ".json"
+    FileConfigVarie = os.path.join(base_dir,"cfg",file_name)
 
-	except Exception as e:
-		print(f"Errore: {e}")
-		return -1
-	
-	return 1
+    try:
+        ConfigVarieJSON = ModuleJSON.FileToJSON(FileConfigVarie)
+
+    except Exception as e:
+        print(f"Errore: {e}")
+        return -1
+
+    return 1
 
 #################################################
 
 # --- Funzione ciclica che esegue il programma principale ---
 def programma_ciclico_V0(interval_sec=300, db_config=None, sigla=None, paramid_list=None, param_name_list=None):
 
-	logger.info("Inizio ciclo")
-	secret_key = ConfigVarieJSON['secret_key']
-	to_do = 0
+    logger.info("Inizio ciclo")
+    secret_key = ConfigVarieJSON['secret_key']
+    to_do = 0
 
-	while True:
-		#start_time = time.time()
-		t = time.time()
-		nn = Minutes()
-		ss = Seconds()
+    while True:
+        #start_time = time.time()
+        t = time.time()
+        nn = Minutes()
+        ss = Seconds()
 
-		if (nn%5 == 0) and (ss < 5):
-			start_time = time.time()
+        if (nn%5 == 0) and (ss < 5):
+            start_time = time.time()
 
-			try:
-				db_connesso = verifica_connessione_db_postgres(db_config)
+            try:
+                db_connesso = verifica_connessione_db_postgres(db_config)
 
-				if db_connesso == 1:
-					#(DB_CONFIG, db_table, staz_name, paramid_list, period_sec)
-					#secret_key = ConfigVarieJSON['secret_key']
+                if db_connesso == 1:
+                    #(DB_CONFIG, db_table, staz_name, paramid_list, period_sec)
+                    #secret_key = ConfigVarieJSON['secret_key']
 
-					#r = leggi_dati(db_config, "averages.avg_60s_01479", sigla, paramid_list, 60*60*24)
-					r = leggi_dati(db_config, "averages.avg_60s_01479", sigla, paramid_list, 60*15)
-		
-					valori_parametri = [float(r[0][4]), float(r[1][4]), float(r[2][4]), float(r[3][4])]  # valori letti dinamicamente		
-					dati_completi = dict(zip(param_name_list, valori_parametri))
+                    #r = leggi_dati(db_config, "averages.avg_60s_01479", sigla, paramid_list, 60*60*24)
+                    r = leggi_dati(db_config, "averages.avg_60s_01479", sigla, paramid_list, 60*15)
 
-					#epoch_utc = ModuleTime.epoch
-					epoch_utc = epoch_utc()
-					epoch_utc_5min = epoch_utc - (epoch_utc % 300)
-					version = "1.0"
+                    valori_parametri = [float(r[0][4]), float(r[1][4]), float(r[2][4]), float(r[3][4])]  # valori letti dinamicamente
+                    dati_completi = dict(zip(param_name_list, valori_parametri))
 
-					payload = {
-						"time": epoch_utc_5min,
-						"version": "1.0",
-						**dati_completi  # unisce le coppie chiave/valore di `dati`
-					}
+                    #epoch_utc = ModuleTime.epoch
+                    epoch_utc = epoch_utc()
+                    epoch_utc_5min = epoch_utc - (epoch_utc % 300)
+                    version = "1.0"
 
-					check = ModuleSendHttps.invia_dati_https(secret_key, payload)
+                    payload = {
+                        "time": epoch_utc_5min,
+                        "version": "1.0",
+                        **dati_completi  # unisce le coppie chiave/valore di `dati`
+                    }
 
-			except Exception as e:
-				logger.error("Errore durante il ciclo", exc_info=True)
+                    check = ModuleSendHttps.invia_dati_https(secret_key, payload)
 
-			# Attendi l'intervallo specificato, considerando il tempo di esecuzione
-			elapsed = time.time() - start_time
-			sleep_time = max(0, interval_sec - elapsed)
-			logger.info(f"Fine ciclo, prossimo ciclo tra {sleep_time:.1f} sec")
-		else:
-			if (ss%5 == 0) and (to_do == 0):
-				to_do = 1
-				s = PresentDateTime(0)
-				print(s)
-			
-			if (ss%5 != 0) and (to_do != 0):
-				to_do = 0
-		pass
+            except Exception as e:
+                logger.error("Errore durante il ciclo", exc_info=True)
 
-		time.sleep(0.1)
+            # Attendi l'intervallo specificato, considerando il tempo di esecuzione
+            elapsed = time.time() - start_time
+            sleep_time = max(0, interval_sec - elapsed)
+            logger.info(f"Fine ciclo, prossimo ciclo tra {sleep_time:.1f} sec")
+        else:
+            if (ss%5 == 0) and (to_do == 0):
+                to_do = 1
+                s = PresentDateTime(0)
+                print(s)
+
+            if (ss%5 != 0) and (to_do != 0):
+                to_do = 0
+        pass
+
+        time.sleep(0.1)
 
 ########################
 
 def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list=None, param_name_list=None):
-	"""
-	Ciclo principale:
-	- legge dati dal DB
-	- costruisce payload con parametri
-	- invia via HTTPS
-	- cicla ogni 'interval_sec' secondi
-	"""
+    """
+    Ciclo principale:
+    - legge dati dal DB
+    - costruisce payload con parametri
+    - invia via HTTPS
+    - cicla ogni 'interval_sec' secondi
 
-	secret_key = ConfigVarieJSON['secret_key']
-	url_send_https = ConfigVarieJSON['send_https']
+    Modalita' di invio:
+    - secret_key non vuota: POST con header X-IOMS-KEY e payload unico
+    - secret_key vuota: GET per ogni parametro con URL costruita da config
+    """
 
-	logger.info("Avvio ciclo continuo")
+    secret_key = ConfigVarieJSON['secret_key']
+    url_send_https = ConfigVarieJSON['send_https']
+    params_config = ConfigVarieJSON['params_tx_dashboard']
 
-	to_do_send = 0
-	to_do_flag = False
+    use_post_mode = (secret_key is not None and secret_key.strip() != "")
 
-	while True:
-		now = datetime.utcnow()
-		minute = now.minute
-		second = now.second
-		
-		try:
-			# Condizione: solo se siamo su multipli di 5 minuti e secondi < 5
-			if (minute % 5 == 0) and (second < 5) and (to_do_send == 0):
-				to_do_send = 1
-				start_time = time.time()
-				try:
-					if verifica_connessione_db_postgres(db_config) != 1:
-						logger.warning("DB non connesso")
-					else:
-						# Lettura dati dal DB
-						logger.info("Invio dati https")
+    logger.info("Avvio ciclo continuo")
+    if use_post_mode:
+        logger.info("Modalita' invio: POST con secret_key")
+    else:
+        logger.info("Modalita' invio: GET per parametro")
 
-						##rows = leggi_dati(db_config, "averages.avg_60s_"+sigla, paramid_list, 60*60*24*31)
-						#rows = leggi_dati(db_config, "avg_60s_"+sigla, sigla, paramid_list, 60*60*24*31)
+    to_do_send = 0
+    to_do_flag = False
 
-						rows = leggi_dati(db_config, "averages.avg_60s_"+sigla, paramid_list, 60*60*24*31, logger=logger)
-						
+    while True:
+        now = datetime.utcnow()
+        minute = now.minute
+        second = now.second
 
-						# # Estrazione valori dinamica
-						# valori_parametri = [float(row[4].replace(',', '.')) for row in rows[:len(param_name_list)]]
-						# dati_completi = dict(zip(param_name_list, valori_parametri))
+        try:
+            # Condizione: solo se siamo su multipli di 5 minuti e secondi < 5
+            if (minute % 5 == 0) and (second < 5) and (to_do_send == 0):
+                to_do_send = 1
+                start_time = time.time()
+                try:
+                    if verifica_connessione_db_postgres(db_config) != 1:
+                        logger.warning("DB non connesso")
+                    else:
+                        # Lettura dati dal DB
+                        logger.info("Invio dati https")
 
-						valori_parametri = []
-						for row in rows[:len(param_name_list)]:
-							valore_str = row[4]
-							if valore_str is None or valore_str.strip() == "":
-								# Gestione valore mancante
-								valore_float  = None
-							else:
-								try:
-									# Sostituisco la virgola e converto a float
-									valore_float = float(valore_str.replace(',', '.'))
-								except ValueError:
-									# Se non è convertibile, metto None o un valore di default
-									valore_float = None
+                        rows = leggi_dati(db_config, "averages.avg_60s_"+sigla, paramid_list, 60*60*24*31, logger=logger)
 
-							valori_parametri.append(valore_float)
+                        valori_parametri = []
+                        for row in rows[:len(param_name_list)]:
+                            valore_str = row[4]
+                            if valore_str is None or valore_str.strip() == "":
+                                valore_float  = None
+                            else:
+                                try:
+                                    valore_float = float(valore_str.replace(',', '.'))
+                                except ValueError:
+                                    valore_float = None
 
-						dati_completi = dict(zip(param_name_list, valori_parametri))
+                            valori_parametri.append(valore_float)
 
-						# Epoch UTC arrotondato a 5 minuti
-						epoch_now = epoch_utc()
-						epoch_5min = epoch_now - (epoch_now % 300)
+                        dati_completi = dict(zip(param_name_list, valori_parametri))
 
-						payload = {
-							"time": epoch_5min,
-							"version": "1.0",
-							**dati_completi
-						}
+                        # Epoch UTC arrotondato a 5 minuti
+                        epoch_now = epoch_utc()
+                        epoch_5min = epoch_now - (epoch_now % 300)
 
-						# Invio HTTPS
-						ModuleSendHttps.invia_dati_https(secret_key, payload, url_send_https)
-						logger.info(f"Dati inviati: {dati_completi}")
+                        if use_post_mode:
+                            # --- Modalita' POST (con secret_key) ---
+                            payload = {
+                                "time": epoch_5min,
+                                "version": "1.0",
+                                **dati_completi
+                            }
 
-				except Exception:
-					logger.error("Errore durante il ciclo", exc_info=True)
+                            ModuleSendHttps.invia_dati_https(secret_key, payload, url_send_https)
+                            logger.info(f"Dati inviati POST: {dati_completi}")
 
-				# Attende l'intervallo specificato considerando il tempo di esecuzione
-				elapsed = time.time() - start_time
-				sleep_time = max(0, interval_sec - elapsed)
-				logger.info(f"Fine ciclo, prossimo ciclo tra {sleep_time:.1f} sec")
+                        else:
+                            # --- Modalita' GET (senza secret_key) ---
+                            for i, param_cfg in enumerate(params_config):
+                                nome = param_cfg.get("name_param", "")
+                                valore = dati_completi.get(nome, None)
+                                ModuleSendHttps.invia_dati_https_get(param_cfg, valore, epoch_5min)
 
-			else:
-				# Esempio di log ogni 5 secondi
-				if (second % 5 == 0) and (not to_do_flag):
-					to_do_flag = True
-					print(PresentDateTimeEng(0))  # stampa ogni 5 secondi
+                            logger.info(f"Dati inviati GET: {dati_completi}")
 
-				elif second % 5 != 0:
-					to_do_flag = False
-			pass
+                except Exception:
+                    logger.error("Errore durante il ciclo", exc_info=True)
 
-			if (minute % 5 != 0) and (to_do_send != 0):
-				to_do_send = 0
+                # Attende l'intervallo specificato considerando il tempo di esecuzione
+                elapsed = time.time() - start_time
+                sleep_time = max(0, interval_sec - elapsed)
+                logger.info(f"Fine ciclo, prossimo ciclo tra {sleep_time:.1f} sec")
 
-		except Exception as e:
-			s = f"Errore: {e}"		
-			print(s)
-			logger.error(s,  exc_info=True)
+            else:
+                # Esempio di log ogni 5 secondi
+                if (second % 5 == 0) and (not to_do_flag):
+                    to_do_flag = True
+                    print(PresentDateTimeEng(0))  # stampa ogni 5 secondi
 
-		time.sleep(0.1)
+                elif second % 5 != 0:
+                    to_do_flag = False
+            pass
+
+            if (minute % 5 != 0) and (to_do_send != 0):
+                to_do_send = 0
+
+        except Exception as e:
+            s = f"Errore: {e}"
+            print(s)
+            logger.error(s,  exc_info=True)
+
+        time.sleep(0.1)
 
 ########################
 
 def main(*args):
-	# Inizializza il logger all’avvio
-	logger = setup_logger(logging.DEBUG)
+    # Inizializza il logger all'avvio
+    logger = setup_logger(logging.DEBUG)
 
-	logger.info("Applicazione avviata")
-	logger.debug("Messaggio di debug per sviluppo")
+    logger.info("Applicazione avviata")
+    logger.debug("Messaggio di debug per sviluppo")
 
-	try:	
+    try:
 
-		if os.getenv("VS_ENV") == "1":
-			s = "Avviato da Visual Studio"
-			print(s)
-			logger.info(s)
+        if os.getenv("VS_ENV") == "1":
+            s = "Avviato da Visual Studio"
+            print(s)
+            logger.info(s)
 
-		else:
-			s = "Avviato da riga di comando"
-			print("Avviato da riga di comando")
-			logger.info(s)
-			root_path = "C:\\Dati_ETL"
+        else:
+            s = "Avviato da riga di comando"
+            print("Avviato da riga di comando")
+            logger.info(s)
+            root_path = "C:\\Dati_ETL"
 
-		pass
+        pass
 
-		parser = argparse.ArgumentParser(description="Report mensile Tirreno Power")	
-		parser.add_argument('--sigla_staz', type=str, default="001", help='Sigla staz.')
-		parser.add_argument('--dbg', type=str, default="exe", help='Sigla staz.')
-		args = parser.parse_args()
+        parser = argparse.ArgumentParser(description="Report mensile Tirreno Power")
+        parser.add_argument('--sigla_staz', type=str, default="001", help='Sigla staz.')
+        parser.add_argument('--dbg', type=str, default="exe", help='Sigla staz.')
+        args = parser.parse_args()
 
-		sigla_staz = args.sigla_staz
-		dbg = args.dbg
+        sigla_staz = args.sigla_staz
+        dbg = args.dbg
 
-		if dbg == "dbg":
-			root_path = "D:\\Dati_ETL_Total_181000076"
-		else:
-			root_path = "C:\\Dati_ETL"
-		pass
+        if dbg == "dbg":
+            root_path = "D:\\Dati_ETL_Total_181000076"
+        else:
+            root_path = "C:\\Dati_ETL"
+        pass
 
-		check = GetStationConfig(sigla_staz)
+        check = GetStationConfig(sigla_staz)
 
-		# Estrae la lista dei parametri
-		params = ConfigVarieJSON["params_tx_dashboard"]
+        # Estrae la lista dei parametri
+        params = ConfigVarieJSON["params_tx_dashboard"]
 
-		# Crea un vettore con tutti i paramid
-		paramid_list = [p["paramid"] for p in params]
-		param_name_list = [p["name_param"] for p in params]
-		
-		sigla = ConfigVarieJSON['sigla']
-		db_ip = ConfigVarieJSON['db_ip']
-		db_name = ConfigVarieJSON['db_name']
-		db_user = ConfigVarieJSON['db_user']
-		db_password = ConfigVarieJSON['db_password']
-		db_port = ConfigVarieJSON['db_port']
+        # Crea un vettore con tutti i paramid
+        paramid_list = [p["paramid"] for p in params]
+        param_name_list = [p["name_param"] for p in params]
 
-		DB_CONFIG = {
-			"dbname": db_name,
-			"user": db_user,
-			"password": db_password,
-			"host": db_ip,
-			"port": db_port
-		}
-		
-		##############################
+        sigla = ConfigVarieJSON['sigla']
+        db_ip = ConfigVarieJSON['db_ip']
+        db_name = ConfigVarieJSON['db_name']
+        db_user = ConfigVarieJSON['db_user']
+        db_password = ConfigVarieJSON['db_password']
+        db_port = ConfigVarieJSON['db_port']
 
-		# --- Thread per eseguire il programma ciclico ---
-		interval_seconds = 300  # es. 5 minuti
-		thread = threading.Thread(target=programma_ciclico, args=(interval_seconds,DB_CONFIG, sigla, paramid_list, param_name_list,), daemon=True)
-		thread.start()
+        DB_CONFIG = {
+            "dbname": db_name,
+            "user": db_user,
+            "password": db_password,
+            "host": db_ip,
+            "port": db_port
+        }
 
-		# --- Il main thread può fare altro o rimanere attivo ---
-		try:
-			while True:
-				time.sleep(0.1)  # main thread attivo, thread ciclico lavora in background
-				
+        ##############################
 
-		except KeyboardInterrupt:
-			logger.info("Programma terminato dall'utente")
+        # --- Thread per eseguire il programma ciclico ---
+        interval_seconds = 300  # es. 5 minuti
+        thread = threading.Thread(target=programma_ciclico, args=(interval_seconds,DB_CONFIG, sigla, paramid_list, param_name_list,), daemon=True)
+        thread.start()
 
-		##############################
+        # --- Il main thread può fare altro o rimanere attivo ---
+        try:
+            while True:
+                time.sleep(0.1)  # main thread attivo, thread ciclico lavora in background
 
-	except Exception as e:
-		s = f"Errore: {e}"		
-		#print(f"Errore: {e}")
-		print(s)
-		logger.info(s)
 
-	sys.exit(0)
-	os._exit(0)
+        except KeyboardInterrupt:
+            logger.info("Programma terminato dall'utente")
+
+        ##############################
+
+    except Exception as e:
+        s = f"Errore: {e}"
+        #print(f"Errore: {e}")
+        print(s)
+        logger.info(s)
+
+    sys.exit(0)
+    os._exit(0)
 
 if __name__ == "__main__":
-	parser = argparse.ArgumentParser(description="Report mensile Tirreno Power")	
-	parser.add_argument('--sigla_staz', type=str, default="01479", help='Sigla staz.')
-	parser.add_argument('--dbg', type=str, default="exe", help='Sigla staz.')
-	args = parser.parse_args()
+    parser = argparse.ArgumentParser(description="Report mensile Tirreno Power")
+    parser.add_argument('--sigla_staz', type=str, default="1592309E102_ETL02", help='Sigla staz.')
+    parser.add_argument('--dbg', type=str, default="exe", help='Sigla staz.')
+    args = parser.parse_args()
 
-	# ########################
+    # ########################
 
-	main(args)
+    main(args)
