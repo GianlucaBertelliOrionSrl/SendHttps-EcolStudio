@@ -1,10 +1,11 @@
 {
 	"id_staz": 1,
 	"active": 1,
+	"log": "debug",
 	"dir_dati": "C:\\Dati_ETL",
 	"test_orion": 0,
-	"sigla": "1592309E102_ETL02",
-	"serial_number": "1592309E102_ETL02",
+	"sigla": "1592309e102_etl02",
+	"serial_number": "1592309e102_etl02",
 
 	"send_to_postgres": 1,
 	"db_name": "ATCOM",
@@ -20,7 +21,7 @@
 	"params_tx_dashboard": 
 	[
 		{		  
-			"name_param": "H2S_B4",
+			"name_param": "H2S_6",
 			"meas_unit": "ppb",
 			"index_param": 1,
 			"grafana_code": "P-11",
@@ -34,12 +35,12 @@
 			"value_suffix": "&v=",
 			"readwrite": 0,
 			"opc_param_type": "double",
-			"opc_param_name": "H2S",
+			"opc_param_name": "H2S_6",
 			"min_send": "",
 			"max_send": ""
 		},
 		{
-		  	"name_param": "PID4",
+		  	"name_param": "PID_6",
 			"meas_unit": "ppm",
 			"index_param": 2,
 			"grafana_code": "M-33",
@@ -53,12 +54,12 @@
 			"value_suffix": "&v=",
 			"readwrite": 0,
 			"opc_param_type": "double",
-			"opc_param_name": "PID",
+			"opc_param_name": "PID_6",
 			"min_send": "",
 			"max_send": ""
 		},
 		{
-			"name_param": "ETO",
+			"name_param": "VOC_6",
 			"meas_unit": "ppm",
 			"index_param": 3,
 			"grafana_code": "M-33E",
@@ -72,12 +73,12 @@
 			"value_suffix": "&v=",
 			"readwrite": 0,
 			"opc_param_type": "double",
-			"opc_param_name": "VOC",
+			"opc_param_name": "VOC_6",
 			"min_send": "",
 			"max_send": ""	
 		},
 		{
-			"name_param": "C6H6",
+			"name_param": "C6H6_6",
 			"meas_unit": "ppb",
 			"index_param": 4,
 			"grafana_code": "P-20",
@@ -91,7 +92,7 @@
 			"value_suffix": "&v=",
 			"readwrite": 0,
 			"opc_param_type": "double",
-			"opc_param_name": "C6H6",
+			"opc_param_name": "C6H6_6",
 			"min_send": "",
 			"max_send": ""	
 		}

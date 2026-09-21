@@ -260,7 +260,7 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
                         # Lettura dati dal DB
                         logger.info("Invio dati https")
 
-                        rows = leggi_dati(db_config, "averages.avg_60s_"+sigla, paramid_list, 60*60*24*31, logger=logger)
+                        rows = leggi_dati(db_config, "averages.avg_60s_"+sigla.lower(), paramid_list, 60*60*24*31, logger=logger)
 
                         valori_parametri = []
                         for row in rows[:len(param_name_list)]:
@@ -332,11 +332,10 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
 ########################
 
 def main(*args):
-    # Inizializza il logger all'avvio
+    # Inizializza il logger con livello di default
     logger = setup_logger(logging.DEBUG)
 
     logger.info("Applicazione avviata")
-    logger.debug("Messaggio di debug per sviluppo")
 
     try:
 
@@ -368,6 +367,14 @@ def main(*args):
         pass
 
         check = GetStationConfig(sigla_staz)
+
+        # Rilegge il livello di log dal config e aggiorna il logger
+        log_level_str = ConfigVarieJSON.get('log', 'debug').upper()
+        log_level = getattr(logging, log_level_str, logging.DEBUG)
+        logger.setLevel(log_level)
+        for handler in logger.handlers:
+            handler.setLevel(log_level)
+        logger.info(f"Livello log impostato: {log_level_str}")
 
         # Estrae la lista dei parametri
         params = ConfigVarieJSON["params_tx_dashboard"]
@@ -420,7 +427,7 @@ def main(*args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Report mensile Tirreno Power")
-    parser.add_argument('--sigla_staz', type=str, default="1592309E102_ETL02", help='Sigla staz.')
+    parser.add_argument('--sigla_staz', type=str, default="1592309e102_etl02", help='Sigla staz.')
     parser.add_argument('--dbg', type=str, default="exe", help='Sigla staz.')
     args = parser.parse_args()
 

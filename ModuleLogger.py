@@ -55,7 +55,8 @@ def setup_logger(level=logging.INFO):
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 
-        logger.info(f"Logger inizializzato: {log_file}")
+        #logger.info(f"Logger inizializzato: {log_file}")
+        logger.debug(f"Logger inizializzato: {log_file}")        
         return logger, today_str
 
     # Crea logger iniziale

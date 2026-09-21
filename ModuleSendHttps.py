@@ -52,7 +52,7 @@ def invia_dati_https(secret_key, payload, url_send_https):
     try:
         response = requests.post(MY_API_URL, headers=MY_HEADERS, data=payload)
         if response.status_code == 200:
-            s = f"✅ Dato inviato: {payload}"
+            s = f"✅ Dato inviato POST: {MY_API_URL} | Payload: {payload}"
             #print(f"✅ Dato inviato: {payload}")
             print(s)
             logger.info(s)
@@ -109,7 +109,7 @@ def invia_dati_https_get(param_config, valore, epoch_time):
     try:
         response = requests.get(url)
         if response.status_code == 200:
-            s = f"✅ Dato inviato GET: {name_param}={valore} t={int(epoch_time)}"
+            s = f"✅ Dato inviato GET: {url}"
             print(s)
             logger.info(s)
             return 1
