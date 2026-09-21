@@ -6,3 +6,4 @@ build
 *.exe
 *.7z
 cfg/CFG
+dist

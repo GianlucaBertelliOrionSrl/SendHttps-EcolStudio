@@ -33,12 +33,7 @@ from ModuleLogger import setup_logger
 
 import Global
 
-# abspath = (os.path.dirname(os.path.abspath(__file__))
-#            if '__file__' in globals()
-#            else os.path.dirname(os.path.realpath(sys.argv[0])))
-
 root_path = "D:\\Dati_ETL_Total_181000076"
-#logger = ModuleLogger.setup_logger(logging.DEBUG)
 
 ###############################################################################################
 
@@ -57,11 +52,8 @@ class ClassGeneralJSONConfig:
         return f'{self.Sigla}: {self.Codice}: {self.Nome}'
 
     def display_attributes(self):
-        # Usa vars() per ottenere un dizionario degli attributi
         attributi = vars(self)
-        #print(attributi)
 
-        # Stampa ciascun attributo e valore
         for chiave, valore in attributi.items():
             print(f"{chiave}: {valore}")
         pass
@@ -101,11 +93,9 @@ def normalizza_colore(color):
     Ritorna sempre una stringa accettata da XlsxWriter
     """
     if isinstance(color, int):
-        # numerico → converto in hex #RRGGBB
         return "#{:06X}".format(color)
 
     elif isinstance(color, str):
-        # già stringa → la ritorno così com'è
         return color.strip()
 
     else:
@@ -115,21 +105,19 @@ def normalizza_colore(color):
 
 def converti_valore(valore):
     if valore == "":
-        return None  # valore nullo
+        return None
 
     elif isinstance(valore, str):
-        # sostituisco la virgola con il punto per numeri decimali
         valore_modificato = valore.replace(',', '.')
         try:
-            # provo a convertire in int o float
             if '.' in valore_modificato:
                 return float(valore_modificato)
             else:
                 return int(valore_modificato)
         except ValueError:
-            return valore  # se non è un numero, restituisco la stringa originale
+            return valore
     else:
-        return valore  # se è già un numero
+        return valore
 
 #############################################
 
@@ -152,70 +140,7 @@ def GetStationConfig(sigla_staz):
 
 #################################################
 
-# --- Funzione ciclica che esegue il programma principale ---
-def programma_ciclico_V0(interval_sec=300, db_config=None, sigla=None, paramid_list=None, param_name_list=None):
-
-    logger.info("Inizio ciclo")
-    secret_key = ConfigVarieJSON['secret_key']
-    to_do = 0
-
-    while True:
-        #start_time = time.time()
-        t = time.time()
-        nn = Minutes()
-        ss = Seconds()
-
-        if (nn%5 == 0) and (ss < 5):
-            start_time = time.time()
-
-            try:
-                db_connesso = verifica_connessione_db_postgres(db_config)
-
-                if db_connesso == 1:
-                    #(DB_CONFIG, db_table, staz_name, paramid_list, period_sec)
-                    #secret_key = ConfigVarieJSON['secret_key']
-
-                    #r = leggi_dati(db_config, "averages.avg_60s_01479", sigla, paramid_list, 60*60*24)
-                    r = leggi_dati(db_config, "averages.avg_60s_01479", sigla, paramid_list, 60*15)
-
-                    valori_parametri = [float(r[0][4]), float(r[1][4]), float(r[2][4]), float(r[3][4])]  # valori letti dinamicamente
-                    dati_completi = dict(zip(param_name_list, valori_parametri))
-
-                    #epoch_utc = ModuleTime.epoch
-                    epoch_utc = epoch_utc()
-                    epoch_utc_5min = epoch_utc - (epoch_utc % 300)
-                    version = "1.0"
-
-                    payload = {
-                        "time": epoch_utc_5min,
-                        "version": "1.0",
-                        **dati_completi  # unisce le coppie chiave/valore di `dati`
-                    }
-
-                    check = ModuleSendHttps.invia_dati_https(secret_key, payload)
-
-            except Exception as e:
-                logger.error("Errore durante il ciclo", exc_info=True)
-
-            # Attendi l'intervallo specificato, considerando il tempo di esecuzione
-            elapsed = time.time() - start_time
-            sleep_time = max(0, interval_sec - elapsed)
-            logger.info(f"Fine ciclo, prossimo ciclo tra {sleep_time:.1f} sec")
-        else:
-            if (ss%5 == 0) and (to_do == 0):
-                to_do = 1
-                s = PresentDateTime(0)
-                print(s)
-
-            if (ss%5 != 0) and (to_do != 0):
-                to_do = 0
-        pass
-
-        time.sleep(0.1)
-
-########################
-
-def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list=None, param_name_list=None):
+def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list=None, param_name_list=None, logger=None):
     """
     Ciclo principale:
     - legge dati dal DB
@@ -227,6 +152,9 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
     - secret_key non vuota: POST con header X-IOMS-KEY e payload unico
     - secret_key vuota: GET per ogni parametro con URL costruita da config
     """
+
+    if logger is None:
+        logger = logging.getLogger("AppLogger")
 
     secret_key = ConfigVarieJSON['secret_key']
     url_send_https = ConfigVarieJSON['send_https']
@@ -249,7 +177,6 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
         second = now.second
 
         try:
-            # Condizione: solo se siamo su multipli di 5 minuti e secondi < 5
             if (minute % 5 == 0) and (second < 5) and (to_do_send == 0):
                 to_do_send = 1
                 start_time = time.time()
@@ -257,10 +184,9 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
                     if verifica_connessione_db_postgres(db_config) != 1:
                         logger.warning("DB non connesso")
                     else:
-                        # Lettura dati dal DB
                         logger.info("Invio dati https")
 
-                        rows = leggi_dati(db_config, "averages.avg_60s_"+sigla.lower(), paramid_list, 60*60*24*31, logger=logger)
+                        rows = leggi_dati(db_config, "averages.avg_60s_"+sigla.lower(), paramid_list, 1800, logger=logger)
 
                         valori_parametri = []
                         for row in rows[:len(param_name_list)]:
@@ -277,12 +203,10 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
 
                         dati_completi = dict(zip(param_name_list, valori_parametri))
 
-                        # Epoch UTC arrotondato a 5 minuti
                         epoch_now = epoch_utc()
                         epoch_5min = epoch_now - (epoch_now % 300)
 
                         if use_post_mode:
-                            # --- Modalita' POST (con secret_key) ---
                             payload = {
                                 "time": epoch_5min,
                                 "version": "1.0",
@@ -293,7 +217,6 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
                             logger.info(f"Dati inviati POST: {dati_completi}")
 
                         else:
-                            # --- Modalita' GET (senza secret_key) ---
                             for i, param_cfg in enumerate(params_config):
                                 nome = param_cfg.get("name_param", "")
                                 valore = dati_completi.get(nome, None)
@@ -304,16 +227,14 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
                 except Exception:
                     logger.error("Errore durante il ciclo", exc_info=True)
 
-                # Attende l'intervallo specificato considerando il tempo di esecuzione
                 elapsed = time.time() - start_time
                 sleep_time = max(0, interval_sec - elapsed)
                 logger.info(f"Fine ciclo, prossimo ciclo tra {sleep_time:.1f} sec")
 
             else:
-                # Esempio di log ogni 5 secondi
                 if (second % 5 == 0) and (not to_do_flag):
                     to_do_flag = True
-                    print(PresentDateTimeEng(0))  # stampa ogni 5 secondi
+                    print(PresentDateTimeEng(0))
 
                 elif second % 5 != 0:
                     to_do_flag = False
@@ -331,34 +252,12 @@ def programma_ciclico(interval_sec=300, db_config=None, sigla=None, paramid_list
 
 ########################
 
-def main(*args):
-    # Inizializza il logger con livello di default
-    logger = setup_logger(logging.DEBUG)
+def main(sigla_staz, dbg):
 
+    logger = setup_logger(logging.DEBUG)
     logger.info("Applicazione avviata")
 
     try:
-
-        if os.getenv("VS_ENV") == "1":
-            s = "Avviato da Visual Studio"
-            print(s)
-            logger.info(s)
-
-        else:
-            s = "Avviato da riga di comando"
-            print("Avviato da riga di comando")
-            logger.info(s)
-            root_path = "C:\\Dati_ETL"
-
-        pass
-
-        parser = argparse.ArgumentParser(description="Report mensile Tirreno Power")
-        parser.add_argument('--sigla_staz', type=str, default="001", help='Sigla staz.')
-        parser.add_argument('--dbg', type=str, default="exe", help='Sigla staz.')
-        args = parser.parse_args()
-
-        sigla_staz = args.sigla_staz
-        dbg = args.dbg
 
         if dbg == "dbg":
             root_path = "D:\\Dati_ETL_Total_181000076"
@@ -366,9 +265,18 @@ def main(*args):
             root_path = "C:\\Dati_ETL"
         pass
 
+        if os.getenv("VS_ENV") == "1":
+            s = "Avviato da Visual Studio"
+            print(s)
+            logger.info(s)
+        else:
+            s = "Avviato da riga di comando"
+            print(s)
+            logger.info(s)
+        pass
+
         check = GetStationConfig(sigla_staz)
 
-        # Rilegge il livello di log dal config e aggiorna il logger
         log_level_str = ConfigVarieJSON.get('log', 'debug').upper()
         log_level = getattr(logging, log_level_str, logging.DEBUG)
         logger.setLevel(log_level)
@@ -376,10 +284,8 @@ def main(*args):
             handler.setLevel(log_level)
         logger.info(f"Livello log impostato: {log_level_str}")
 
-        # Estrae la lista dei parametri
         params = ConfigVarieJSON["params_tx_dashboard"]
 
-        # Crea un vettore con tutti i paramid
         paramid_list = [p["paramid"] for p in params]
         param_name_list = [p["name_param"] for p in params]
 
@@ -400,16 +306,17 @@ def main(*args):
 
         ##############################
 
-        # --- Thread per eseguire il programma ciclico ---
-        interval_seconds = 300  # es. 5 minuti
-        thread = threading.Thread(target=programma_ciclico, args=(interval_seconds,DB_CONFIG, sigla, paramid_list, param_name_list,), daemon=True)
+        interval_seconds = 300
+        thread = threading.Thread(
+            target=programma_ciclico,
+            args=(interval_seconds, DB_CONFIG, sigla, paramid_list, param_name_list, logger),
+            daemon=True
+        )
         thread.start()
 
-        # --- Il main thread può fare altro o rimanere attivo ---
         try:
             while True:
-                time.sleep(0.1)  # main thread attivo, thread ciclico lavora in background
-
+                time.sleep(0.1)
 
         except KeyboardInterrupt:
             logger.info("Programma terminato dall'utente")
@@ -418,9 +325,8 @@ def main(*args):
 
     except Exception as e:
         s = f"Errore: {e}"
-        #print(f"Errore: {e}")
         print(s)
-        logger.info(s)
+        logger.error(s, exc_info=True)
 
     sys.exit(0)
     os._exit(0)
@@ -431,6 +337,4 @@ if __name__ == "__main__":
     parser.add_argument('--dbg', type=str, default="exe", help='Sigla staz.')
     args = parser.parse_args()
 
-    # ########################
-
-    main(args)
+    main(args.sigla_staz, args.dbg)
