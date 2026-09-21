@@ -26,9 +26,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ClassAccess.py" />
     <Compile Include="ClassDaemon.py" />
-    <Compile Include="ClassFtp.py" />
     <Compile Include="ClassKiller.py" />
     <Compile Include="ClassSignal.py" />
     <Compile Include="daemon.py" />
